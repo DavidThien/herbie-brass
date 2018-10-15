@@ -154,7 +154,8 @@
 
 ; These definitions in place, we finally generate the points.
 
-(define (prepare-points-ranges prog precondition range-table)
+(define (prepare-points-ranges prog precondition range-table #:num-points (num-points #f))
+  (define points-to-sample (if num-points num-points (*num-points*)))
   (define (sample)
     (for/list ([var (program-variables prog)])
       (match (range-table-ref range-table var)
@@ -170,15 +171,15 @@
      [(> num-loops 200)
       (raise-herbie-error "Cannot sample enough valid points."
                           #:url "faq.html#sample-valid-points")]
-     [(>= npts (*num-points*))
+     [(>= npts points-to-sample)
       (debug #:from 'points #:tag 'exit #:depth 4
              "Sampled" npts "points with exact outputs")
-      (mk-pcontext (take-up-to pts (*num-points*)) (take-up-to exs (*num-points*)))]
+      (mk-pcontext (take-up-to pts points-to-sample) (take-up-to exs points-to-sample))]
      [else
-      (define num (max 4 (- (*num-points*) npts))) ; pad to avoid repeatedly trying to get last point
+      (define num (max 4 (- points-to-sample npts))) ; pad to avoid repeatedly trying to get last point
       (debug #:from 'points #:depth 4
              "Sampling" num "additional inputs,"
-             "on iter" num-loops "have" npts "/" (*num-points*))
+             "on iter" num-loops "have" npts "/" points-to-sample)
       (define pts1 (for/list ([i (in-range num)]) (sample)))
       (define exs1 (make-exacts prog pts1 precondition))
       (debug #:from 'points #:depth 4
@@ -187,7 +188,7 @@
       ;; keep iterating till we get at least *num-points*
       (loop (append pts* pts) (append exs* exs) (+ 1 num-loops))])))
 
-(define (prepare-points prog precondition)
+(define (prepare-points prog precondition #:num-points (num-points #f))
   "Given a program, return two lists:
    a list of input points (each a list of flonums)
    and a list of exact values for those points (each a flonum)"
@@ -203,7 +204,7 @@
           #:unless (range-table-ref range-table var))
       (raise-herbie-error "No valid values of variable ~a" var
                           #:url "faq.html#no-valid-values"))
-    (prepare-points-ranges prog precondition range-table)]))
+    (prepare-points-ranges prog precondition range-table #:num-points num-points)]))
 
 (define (eval-errors eval-fn pcontext)
   (define max-ulps (expt 2 (*bit-width*)))
@@ -235,10 +236,11 @@
 (define (errors prog pcontext)
   (eval-errors (eval-prog prog 'fl) pcontext))
 
-(define (errors-score e)
+(define (errors-score e #:bit-width (bit-width #f))
+  (define use-bit-width (if bit-width bit-width (*bit-width*)))
   (let-values ([(reals unreals) (partition ordinary-value? e)])
     (if (flag-set? 'reduce 'avg-error)
         (/ (+ (apply + (map ulps->bits reals))
-              (* (*bit-width*) (length unreals)))
+              (* use-bit-width (length unreals)))
            (length e))
         (apply max (map ulps->bits reals)))))
