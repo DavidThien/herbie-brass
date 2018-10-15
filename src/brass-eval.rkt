@@ -23,19 +23,17 @@
   (printf "Running in single precision.\n")
   (disable-flag! 'precision 'double)
   (define single-precision-results (make-test-list))
-  (println double-precision-results)
-  (println single-precision-results)
-  (printf "Single Start | Single End | Double Start | Double End")
+  (printf "Single Start | Single End | Double Start | Double End\n")
   (for/list ([double-test double-precision-results]
              [single-test single-precision-results])
     (if (and (test-result? double-test) (test-result? single-test))
-      (printf "Test failed or timed out.\n")
-      (let ([double-start-error (test-result-start-error double-test)]
-            [single-start-error (test-result-start-error single-test)]
-            [double-end-error (test-result-end-error double-test)]
-            [single-end-error (test-result-end-error single-test)])
+      (let ([double-start-error (errors-score (test-result-start-error double-test))]
+            [single-start-error (errors-score (test-result-start-error single-test))]
+            [double-end-error (errors-score (test-result-end-error double-test))]
+            [single-end-error (errors-score (test-result-end-error single-test))])
         (printf "~a | ~a | ~a | ~a\n" single-start-error single-end-error
-                double-start-error double-end-error)))))
+                double-start-error double-end-error))
+      (printf "Test failed or timed out.\n"))))
 
 (module+ main
   (define seed (random 1 (expt 2 31)))
