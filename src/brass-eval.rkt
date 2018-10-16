@@ -14,15 +14,14 @@
 
 (define precisions '(double single))
 
-(define (calc-error prog precondition precision prec-res)
-  (if (and prog prec-res)
+(define (calc-error prog precondition precision prec-res points)
+  (if (and prog prec-res points)
     (begin
       (match precision
         ['double (enable-flag! 'precision 'double)]
         ['single (disable-flag! 'precision 'double)])
       ;; Setting bit-width and num-points for errors-score
-      (let ([points (prepare-points prog precondition #:num-points 8000)]
-            [bit-width (if (eq? precision 'double) 64 32)])
+      (let ([bit-width (if (eq? precision 'double) 64 32)])
         (errors-score (errors prog points) #:bit-width bit-width)))
     #f))
 
@@ -74,10 +73,11 @@
                                         (if (test-result? res)
                                           (alt-program (test-result-end-alt res))
                                           #f))))
-    (define res (for/list ([precision precisions] [prog-res (cdr programs)])
+    (define res (for/list ([precision precisions] [prog-res (cdr programs)] [res test-results])
       (for/list ([prog programs])
-        (if prog
-          (calc-error prog precondition precision prog-res)
+        (if (and prog (test-result? res))
+          (let ([pcon (mk-pcontext (test-result-newpoints res) (test-result-newexacts res))])
+            (calc-error prog precondition precision prog-res pcon))
           #f))))
     (print-error-table res precisions)
     (displayln "")))
