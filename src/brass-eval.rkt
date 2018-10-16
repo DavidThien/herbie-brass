@@ -14,8 +14,8 @@
 
 (define precisions '(double single))
 
-(define (calc-error prog precondition precision)
-  (if prog
+(define (calc-error prog precondition precision prec-res)
+  (if (and prog prec-res)
     (begin
       (match precision
         ['double (enable-flag! 'precision 'double)]
@@ -55,26 +55,31 @@
   (define tests (append-map load-tests bench-dirs))
   (define seed (get-seed))
   (printf "Running Herbie on ~a tests (seed: ~a)...\n" (length tests) seed)
-  (define all-test-results (for/list ([test tests])
+  (for/list ([test tests])
+    (printf "Now running test: ~a\n" (test-name test))
+    (printf "Starting program: ~a\n" (test-program test))
     (define test-results (for/list ([precision precisions])
-      (printf "Running in ~a precision.\n" precision)
       (match precision
         ['single (disable-flag! 'precision 'double)]
         ['double (enable-flag! 'precision 'double)])
-      (println (test-input test))
-      (get-test-result test)))
+      (define result (get-test-result test))
+      (if (test-result? result)
+        (printf "Precision ~a result: ~a\n" precision (alt-program (test-result-end-alt result)))
+        (printf "Precision ~a timed out or failed\n" precision))
+      result))
 
     (define start-prog (test-program test))
     (define precondition (test-precondition test))
-    (define programs (cons start-prog
-                           (map (compose alt-program test-result-end-alt) test-results)))
-    (for/list ([precision precisions])
+    (define programs (cons start-prog (for/list ([res test-results])
+                                        (if (test-result? res)
+                                          (alt-program (test-result-end-alt res))
+                                          #f))))
+    (define res (for/list ([precision precisions] [prog-res (cdr programs)])
       (for/list ([prog programs])
-        (calc-error prog precondition precision)))))
-
-  (for ([test-result all-test-results] [test tests])
-    (printf "Test name: ~a\n" (test-name test))
-    (print-error-table test-result precisions)
+        (if prog
+          (calc-error prog precondition precision prog-res)
+          #f))))
+    (print-error-table res precisions)
     (displayln "")))
 
 (module+ main
