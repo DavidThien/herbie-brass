@@ -3,6 +3,7 @@
 (require math/flonum math/bigfloat)
 (require "config.rkt")
 (require "common.rkt")
+(require "syntax/softposit.rkt")
 
 (provide midpoint-float ulp-difference *bit-width* ulps->bits bit-difference sample-float sample-double)
 
@@ -24,7 +25,23 @@
      (+ (ulp-difference (real-part x) (real-part y))
         (ulp-difference (imag-part x) (imag-part y)))]
     [((? boolean?) (? boolean?))
-     (if (equal? x y) 0 64)]))
+     (if (equal? x y) 0 64)]
+    ;; TODO: We should have a better metric for calculating posit and quire error
+    [((? posit8?) (? posit8?))
+     (ulp-difference (posit8->double x) (posit8->double y))]
+    [((? posit16?) (? posit16?))
+     (ulp-difference (posit16->double x) (posit16->double y))]
+    [((? posit32?) (? posit32?))
+     (ulp-difference (posit32->double x) (posit32->double y))]
+    [((? quire8?) (? quire8?))
+     (ulp-difference (posit8->double (quire8->posit8 x))
+                     (posit8->double (quire8->posit8 y)))]
+    [((? quire16?) (? quire16?))
+     (ulp-difference (posit16->double (quire16->posit16 x))
+                     (posit16->double (quire16->posit16 y)))]
+    [((? quire32?) (? quire32?))
+     (ulp-difference (posit32->double (quire32->posit32 x))
+                     (posit32->double (quire32->posit32 y)))]))
 
 (define (midpoint-float p1 p2)
   (cond 
@@ -37,6 +54,13 @@
        (+ (single-flonum->ordinal p1) (single-flonum->ordinal p2))
        2)
       4) #f)]
+   [(and (posit8? p1) (posit8? p2))
+    ;; NOTE: This isn't a binary search (just splits the difference)
+    (posit8-div (posit8-add p1 p2) (double->posit8 2.0))]
+   [(and (posit16? p1) (posit16? p2))
+    (posit16-div (posit16-add p1 p2) (double->posit16 2.0))]
+   [(and (posit32? p1) (posit32? p2))
+    (posit32-div (posit32-add p1 p2) (double->posit32 2.0))]
    [else
     (error "Mixed precisions in binary search")]))
 

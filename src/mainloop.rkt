@@ -60,12 +60,13 @@
     (λ (key value) (set-box! b (cons (cons key value) (unbox b))))))
 
 ;; Setting up
-(define (setup-prog! prog #:precondition [precondition 'TRUE])
+(define (setup-prog! prog #:precondition [precondition 'TRUE]
+                     #:precision [precision 'binary64])
   (*start-prog* prog)
   (rollback-improve!)
   (timeline-event! 'start) ; This has no associated data, so we don't name it
   (debug #:from 'progress #:depth 3 "[1/2] Preparing points")
-  (let* ([context (prepare-points prog precondition)]
+  (let* ([context (prepare-points prog precondition precision)]
          [altn (make-alt prog)])
     (^precondition^ precondition)
     (*pcontext* context)
@@ -120,9 +121,9 @@
     (void)))
 
 ;; Invoke the subsystems individually
-(define (localize!)
+(define (localize! precision)
   (define log! (timeline-event! 'localize))
-  (^locs^ (localize-error (alt-program (^next-alt^))))
+  (^locs^ (localize-error (alt-program (^next-alt^)) precision))
   (void))
 
 (define transforms-to-try
@@ -229,13 +230,13 @@
   (^table^ (atab-add-altns (^table^) (list (make-alt prog))))
   (void))
 
-(define (finish-iter!)
+(define (finish-iter! precision)
   (when (not (^next-alt^))
     (debug #:from 'progress #:depth 3 "picking best candidate")
     (choose-best-alt!))
   (when (not (^locs^))
     (debug #:from 'progress #:depth 3 "localizing error")
-    (localize!))
+    (localize! precision))
   (when (not (^gened-series^))
     (debug #:from 'progress #:depth 3 "generating series expansions")
     (gen-series!))
@@ -265,7 +266,7 @@
   (void))
 
 ;; Run a complete iteration
-(define (run-iter!)
+(define (run-iter! precision)
   (if (^next-alt^)
       (begin (printf "An iteration is already in progress!\n")
 	     (printf "Finish it up manually, or by running (finish-iter!)\n")
@@ -273,7 +274,7 @@
       (begin (debug #:from 'progress #:depth 3 "picking best candidate")
 	     (choose-best-alt!)
 	     (debug #:from 'progress #:depth 3 "localizing error")
-	     (localize!)
+	     (localize! precision)
 	     (debug #:from 'progress #:depth 3 "generating rewritten candidates")
 	     (gen-rewrites!)
 	     (debug #:from 'progress #:depth 3 "generating series expansions")
@@ -284,30 +285,31 @@
 	     (finalize-iter!)))
   (void))
 
-(define (run-improve prog iters #:precondition [precondition 'TRUE])
+(define (run-improve prog iters #:precondition [precondition 'TRUE]
+                     #:precision [precision 'binary64])
   (debug #:from 'progress #:depth 1 "[Phase 1 of 3] Setting up.")
-  (setup-prog! prog #:precondition precondition)
+  (setup-prog! prog #:precondition precondition #:precision precision)
   (if (and (flag-set? 'setup 'early-exit) (< (errors-score (errors (*start-prog*) (*pcontext*))) 0.1))
       (begin
 	(debug #:from 'progress #:depth 1 "Initial program already accurate, stopping.")
 	(make-alt (*start-prog*)))
       (begin
 	(debug #:from 'progress #:depth 1 "[Phase 2 of 3] Improving.")
-        (let* ([new-alts
-               (if (flag-set? 'setup 'simplify)
-                   (for/list ([altn (atab-all-alts (^table^))])
-                     (alt `(λ ,(program-variables (alt-program altn))
-                             ,(simplify-expr (program-body (alt-program altn)) #:rules (*simplify-rules*)))
-                          'initial-simplify (list altn)))
-                   (list))])
-          (^table^ (atab-add-altns (^table^) new-alts))
-          (for ([iter (in-range iters)] #:break (atab-completed? (^table^)))
-            (debug #:from 'progress #:depth 2 "iteration" (+ 1 iter) "/" iters)
-            (run-iter!))
-          (debug #:from 'progress #:depth 1 "[Phase 3 of 3] Extracting.")
-          (get-final-combination)))))
+        (^table^
+         (atab-add-altns (^table^)
+                         (if (flag-set? 'setup 'simplify)
+                             (for/list ([altn (atab-all-alts (^table^))])
+                               (alt `(λ ,(program-variables (alt-program altn))
+                                       ,(simplify-expr (program-body (alt-program altn)) #:rules (*simplify-rules*)))
+                                    'initial-simplify (list altn)))
+                             (list))))
+        (for ([iter (in-range iters)] #:break (atab-completed? (^table^)))
+          (debug #:from 'progress #:depth 2 "iteration" (+ 1 iter) "/" iters)
+          (run-iter! precision))
+        (debug #:from 'progress #:depth 1 "[Phase 3 of 3] Extracting.")
+        (get-final-combination precision))))
 
-(define (get-final-combination)
+(define (get-final-combination precision)
   (define all-alts (atab-all-alts (^table^)))
   (*all-alts* all-alts)
   (define joined-alt
@@ -316,7 +318,7 @@
       (timeline-event! 'regimes)
       (define option (infer-splitpoints all-alts))
       (timeline-event! 'binary-search)
-      (combine-alts option)]
+      (combine-alts option precision)]
      [else
       (best-alt all-alts)]))
   (define cleaned-alt
@@ -327,8 +329,8 @@
   cleaned-alt)
 
 ;; Other tools
-(define (resample!)
-  (let ([context (prepare-points (*start-prog*) (^precondition^))])
+(define (resample! precision)
+  (let ([context (prepare-points (*start-prog*) (^precondition^) precision)])
     (*pcontext* context)
     (^table^ (atab-new-context (^table^) context)))
   (void))

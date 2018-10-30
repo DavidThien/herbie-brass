@@ -51,7 +51,8 @@
         (define alt
           (run-improve (test-program test)
                        (*num-iterations*)
-                       #:precondition (test-precondition test)))
+                       #:precondition (test-precondition test)
+                       #:precision (test-precision test)))
         (define context (*pcontext*))
         (define all-alts (remove-duplicates (*all-alts*)))
         (when seed (set-seed! seed))
