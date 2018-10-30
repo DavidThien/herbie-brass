@@ -8,18 +8,20 @@
 (require "alternative.rkt")
 (require "sandbox.rkt")
 (require "mainloop.rkt")
+(require "programs.rkt")
 (require "formats/test.rkt")
 (require "formats/datafile.rkt")
 (require "float.rkt")
 
-(define precisions '(double single))
+(define precisions '(double single posit16))
 
 (define (calc-error prog precondition precision prec-res points)
   (if (and prog prec-res points)
     (begin
       (match precision
         ['double (enable-flag! 'precision 'double)]
-        ['single (disable-flag! 'precision 'double)])
+        ['single (disable-flag! 'precision 'double)]
+        ['posit16 void])
       ;; Setting bit-width and num-points for errors-score
       (let ([bit-width (if (eq? precision 'double) 64 32)])
         (errors-score (errors prog points) #:bit-width bit-width)))
@@ -54,30 +56,39 @@
   (define tests (append-map load-tests bench-dirs))
   (define seed (get-seed))
   (printf "Running Herbie on ~a tests (seed: ~a)...\n" (length tests) seed)
-  (for/list ([test tests])
-    (printf "Now running test: ~a\n" (test-name test))
-    (printf "Starting program: ~a\n" (test-program test))
+  (for/list ([t tests])
+    (printf "Now running test: ~a\n" (test-name t))
+    (printf "Starting program: ~a\n" (test-program t))
     (define test-results (for/list ([precision precisions])
       (match precision
         ['single (disable-flag! 'precision 'double)]
-        ['double (enable-flag! 'precision 'double)])
-      (define result (get-test-result test))
+        ['double (enable-flag! 'precision 'double)]
+        ['posit16 void])
+      (define precision-test (if (eq? precision 'posit16)
+                               (struct-copy test t
+                                            [precision 'posit16])
+                               t))
+      (define result (get-test-result precision-test))
       (if (test-result? result)
         (printf "Precision ~a result: ~a\n" precision (alt-program (test-result-end-alt result)))
         (printf "Precision ~a timed out or failed\n" precision))
       result))
 
-    (define start-prog (test-program test))
-    (define precondition (test-precondition test))
+    (define start-prog (test-program t))
+    (define precondition (test-precondition t))
     (define programs (cons start-prog (for/list ([res test-results])
                                         (if (test-result? res)
                                           (alt-program (test-result-end-alt res))
                                           #f))))
-    (define res (for/list ([precision precisions] [prog-res (cdr programs)] [res test-results])
+    (define res (for/list ([precision precisions] [prec-res (cdr programs)] [res test-results])
       (for/list ([prog programs])
         (if (and prog (test-result? res))
-          (let ([pcon (mk-pcontext (test-result-newpoints res) (test-result-newexacts res))])
-            (calc-error prog precondition precision prog-res pcon))
+          (let* ([pcon (mk-pcontext (test-result-newpoints res) (test-result-newexacts res))]
+                 [ctx-prec (if (or (eq? precision 'double) (eq? precision 'single)) 'real precision)]
+                 [precision-ctx (for/list ([var (program-variables prog)]) (cons var ctx-prec))]
+                 [precision-prog-body (desugar-program (program-body prog) precision-ctx)]
+                 [precision-prog `(λ ,(program-variables prog) ,precision-prog-body)])
+            (calc-error precision-prog precondition precision prec-res pcon))
           #f))))
     (print-error-table res precisions)
     (displayln "")))
