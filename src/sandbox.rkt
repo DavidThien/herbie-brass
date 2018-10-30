@@ -58,7 +58,7 @@
         (when seed (set-seed! seed))
         (define newcontext
           (parameterize ([*num-points* (*reeval-pts*)])
-            (prepare-points (test-program test) (test-precondition test))))
+            (prepare-points (test-program test) (test-precondition test) (test-precision test))))
         (define baseline-errs
           (if debug?
               (baseline-error (map (λ (alt) (eval-prog (alt-program alt) 'fl)) all-alts) context newcontext)
