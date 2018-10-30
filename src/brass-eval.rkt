@@ -13,7 +13,7 @@
 (require "formats/datafile.rkt")
 (require "float.rkt")
 
-(define precisions '(double single posit16))
+(define precisions '(posit16 double))
 
 (define (calc-error prog precondition precision prec-res points)
   (if (and prog prec-res points)
@@ -64,9 +64,16 @@
         ['single (disable-flag! 'precision 'double)]
         ['double (enable-flag! 'precision 'double)]
         ['posit16 void])
+      (define ctx-prec (if (or (eq? precision 'double) (eq? precision 'single)) 'real precision))
+      (define precision-ctx (for/list ([var (program-variables (test-program t))])
+                              (cons var ctx-prec)))
+      (define precision-prog-body (with-handlers ([exn:fail?
+                                                    (λ (e) (program-body (test-program t)))])
+                                    (desugar-program (program-body (test-program t)) precision-ctx)))
       (define precision-test (if (eq? precision 'posit16)
                                (struct-copy test t
-                                            [precision 'posit16])
+                                            [precision 'posit16]
+                                            [input precision-prog-body])
                                t))
       (define result (get-test-result precision-test))
       (if (test-result? result)
@@ -82,13 +89,16 @@
                                           #f))))
     (define res (for/list ([precision precisions] [prec-res (cdr programs)] [res test-results])
       (for/list ([prog programs])
-        (if (and prog (test-result? res))
+        (define prog* (resugar-program prog))
+        (if (and prog* (test-result? res))
           (let* ([pcon (mk-pcontext (test-result-newpoints res) (test-result-newexacts res))]
                  [ctx-prec (if (or (eq? precision 'double) (eq? precision 'single)) 'real precision)]
-                 [precision-ctx (for/list ([var (program-variables prog)]) (cons var ctx-prec))]
-                 [precision-prog-body (desugar-program (program-body prog) precision-ctx)]
-                 [precision-prog `(λ ,(program-variables prog) ,precision-prog-body)])
-            (calc-error precision-prog precondition precision prec-res pcon))
+                 [precision-ctx (for/list ([var (program-variables prog*)]) (cons var ctx-prec))]
+                 [precision-prog-body (with-handlers ([exn:fail?
+                                                    (λ (e) #f)])
+                                    (desugar-program (program-body prog*) precision-ctx))]
+                 [precision-prog `(λ ,(program-variables prog*) ,precision-prog-body)])
+            (calc-error precision-prog precondition precision (and prec-res precision-prog-body) pcon))
           #f))))
     (print-error-table res precisions)
     (displayln "")))

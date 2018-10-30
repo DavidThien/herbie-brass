@@ -11,7 +11,8 @@
 
 (provide types type? value-of bigvalue-of value? bigvalue?
          constant? variable? operator? operator-info constant-info parametric-operators
-         prune-operators! *unknown-d-ops* *unknown-f-ops* *loaded-ops*)
+         parametric-operators-reverse prune-operators! *unknown-d-ops* *unknown-f-ops*
+         *loaded-ops*)
 
 (module+ test (require rackunit))
 
@@ -1094,6 +1095,13 @@
                  (sqrt.p8 posit8 posit8)
                  (sqrt.p16 posit16 posit16)
                  (sqrt.p32 posit32 posit32))]))
+
+(define parametric-operators-reverse
+  (make-hash (append* (for/list ([(key-val) (hash->list parametric-operators)])
+    (define key (car key-val))
+    (define vals (cdr key-val))
+    (for/list ([val vals])
+      (cons (car val) key))))))
 
 (module+ test
   (for ([(k r) (in-hash (cdr constants))] #:when true
