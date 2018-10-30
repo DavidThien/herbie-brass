@@ -13,7 +13,7 @@
 (require "formats/datafile.rkt")
 (require "float.rkt")
 
-(define precisions '(posit16 double))
+(define precisions '(double single posit16))
 
 (define (calc-error prog precondition precision prec-res points)
   (if (and prog prec-res points)
