@@ -290,7 +290,7 @@
   (eval-errors baseline newpcontext))
 
 (define (errors prog pcontext)
-  (eval-errors (eval-prog prog 'fl')))
+  (eval-errors (eval-prog prog 'fl) pcontext))
 
 (define (errors-score e #:bit-width (bit-width #f))
   (define use-bit-width (if bit-width bit-width (*bit-width*)))
