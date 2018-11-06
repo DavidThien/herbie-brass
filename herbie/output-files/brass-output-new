@@ -1,0 +1,367 @@
+Running Herbie on 497 tests (seed: 733184369)...
+Now running test: Random Jason Timeout Test 001
+Starting program: (λ (x) (+ x (asin (cosh x))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x) (+ x (asin (cosh x))))
+#f
+#f
+#f
+'(λ (x) (+ x (asin (cosh x))))
+#f
+#f
+#f
+'(λ (x) (+ x (asin (cosh x))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 009
+Starting program: (λ (x y) (fabs (fmod y (asin (- 2.821952756469356e+184 x)))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x y) (fabs (fmod y (asin (- 2.821952756469356e+184 x)))))
+#f
+#f
+#f
+'(λ (x y) (fabs (fmod y (asin (- 2.821952756469356e+184 x)))))
+#f
+#f
+#f
+'(λ (x y) (fabs (fmod y (asin (- 2.821952756469356e+184 x)))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Area of a triangle
+Starting program: (λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+Precision double timed out or failed
+Precision single timed out or failed
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+Precision posit16 result: (λ (a b c) (sqrt.p16 (*.p16 (*.p16 (*.p16 (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) a) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) b)) (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0))) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) c))))
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+'(λ (a b c) (sqrt.p16 (*.p16 (*.p16 (*.p16 (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) a) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) b)) (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0))) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) c))))
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+'(λ (a b c) (sqrt.p16 (*.p16 (*.p16 (*.p16 (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) a) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) b)) (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0))) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) c))))
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+'(λ (a b c) (sqrt.p16 (*.p16 (*.p16 (*.p16 (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) a) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) b)) (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0))) (-.p16 (/.p16 (+.p16 a (+.p16 c b)) (real->posit16 2.0)) c))))
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|0.71163336|#f    |#f    |0.71626|
+
+Now running test: Toniolo and Linder, Equation (13)
+Starting program: (λ (n U t l Om U*) (sqrt (* (* (* 2 n) U) (- (- t (* 2 (/ (* l l) Om))) (* (* n (pow (/ l Om) 2)) (- U U*))))))
+Precision double result: (λ (n U t l Om U*) (if (<= t 1.3537873396734357e-159) (sqrt (+ (* (* 2 (* U n)) t) (+ (* (* (* -4 l) n) (/ U (/ Om l))) (* (* (/ l Om) (- U U*)) (* (* n (/ l Om)) (* -2 (* U n))))))) (* (sqrt (- (- t (/ (* l 2) (/ Om l))) (* (* (- U U*) n) (* (/ l Om) (/ l Om))))) (sqrt (* 2 (* U n))))))
+Precision single result: (λ (n U t l Om U*) 0)
+Precision posit16 timed out or failed
+'(λ (n U t l Om U*) (sqrt (* (* (* 2 n) U) (- (- t (* 2 (/ (* l l) Om))) (* (* n (pow (/ l Om) 2)) (- U U*))))))
+'(λ (n U t l Om U*) (if (<= t 1.3537873396734357e-159) (sqrt (+ (* (* 2 (* U n)) t) (+ (* (* (* -4 l) n) (/ U (/ Om l))) (* (* (/ l Om) (- U U*)) (* (* n (/ l Om)) (* -2 (* U n))))))) (* (sqrt (- (- t (/ (* l 2) (/ Om l))) (* (* (- U U*) n) (* (/ l Om) (/ l Om))))) (sqrt (* 2 (* U n))))))
+'(λ (n U t l Om U*) 0)
+#f
+'(λ (n U t l Om U*) (sqrt (* (* (* 2 n) U) (- (- t (* 2 (/ (* l l) Om))) (* (* n (pow (/ l Om) 2)) (- U U*))))))
+'(λ (n U t l Om U*) (if (<= t 1.3537873396734357e-159) (sqrt (+ (* (* 2 (* U n)) t) (+ (* (* (* -4 l) n) (/ U (/ Om l))) (* (* (/ l Om) (- U U*)) (* (* n (/ l Om)) (* -2 (* U n))))))) (* (sqrt (- (- t (/ (* l 2) (/ Om l))) (* (* (- U U*) n) (* (/ l Om) (/ l Om))))) (sqrt (* 2 (* U n))))))
+'(λ (n U t l Om U*) 0)
+#f
+'(λ (n U t l Om U*) (sqrt (* (* (* 2 n) U) (- (- t (* 2 (/ (* l l) Om))) (* (* n (pow (/ l Om) 2)) (- U U*))))))
+'(λ (n U t l Om U*) (if (<= t 1.3537873396734357e-159) (sqrt (+ (* (* 2 (* U n)) t) (+ (* (* (* -4 l) n) (/ U (/ Om l))) (* (* (/ l Om) (- U U*)) (* (* n (/ l Om)) (* -2 (* U n))))))) (* (sqrt (- (- t (/ (* l 2) (/ Om l))) (* (* (- U U*) n) (* (/ l Om) (/ l Om))))) (sqrt (* 2 (* U n))))))
+'(λ (n U t l Om U*) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |33.5450836|28.503|61.261|#f     |
+|single |27.8638960|27.671|11.249|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 003
+Starting program: (λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 015
+Starting program: (λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+'(λ (a b) (sin (pow (sqrt (atan2 b b)) (- b a))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: (/ (- x lo) (- hi lo))
+Starting program: (λ (lo hi x) (/ (- x lo) (- hi lo)))
+Precision double result: (λ (lo hi x) (/ (- x lo) (- hi lo)))
+Precision single result: (λ (lo hi x) 0)
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+Precision posit16 result: (λ (lo hi x) (/.p16 (-.p16 x lo) (-.p16 hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) 0)
+'(λ (lo hi x) (/.p16 (-.p16 x lo) (-.p16 hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) 0)
+'(λ (lo hi x) (/.p16 (-.p16 x lo) (-.p16 hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) (/ (- x lo) (- hi lo)))
+'(λ (lo hi x) 0)
+'(λ (lo hi x) (/.p16 (-.p16 x lo) (-.p16 hi lo)))
+|       |start prog|double|single|posit16|
+|double |61.9971086|61.997|61.997|61.9971|
+|single |30.0177641|30.017|29.976|30.0177|
+|posit16|4.91280875|4.9128|29.986|4.91280|
+
+Now running test: Random Jason Timeout Test 002
+Starting program: (λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 004
+Starting program: (λ (a c) (fmod (cosh c) (log1p a)))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a c) (fmod (cosh c) (log1p a)))
+#f
+#f
+#f
+'(λ (a c) (fmod (cosh c) (log1p a)))
+#f
+#f
+#f
+'(λ (a c) (fmod (cosh c) (log1p a)))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 012
+Starting program: (λ (a) (acos (pow (fmod (cosh a) (* a a)) (log1p a))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a) (acos (pow (fmod (cosh a) (* a a)) (log1p a))))
+#f
+#f
+#f
+'(λ (a) (acos (pow (fmod (cosh a) (* a a)) (log1p a))))
+#f
+#f
+#f
+'(λ (a) (acos (pow (fmod (cosh a) (* a a)) (log1p a))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 014
+Starting program: (λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+'(λ (c) (fmod (sinh c) (- c (pow -2.9807307601812193e+165 2))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Random Jason Timeout Test 006
+Starting program: (λ (a) (fabs (fmod (atan2 (expm1 (sin (expm1 a))) (atan a)) a)))
+Precision double timed out or failed
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a) (fabs (fmod (atan2 (expm1 (sin (expm1 a))) (atan a)) a)))
+#f
+#f
+#f
+'(λ (a) (fabs (fmod (atan2 (expm1 (sin (expm1 a))) (atan a)) a)))
+#f
+#f
+#f
+'(λ (a) (fabs (fmod (atan2 (expm1 (sin (expm1 a))) (atan a)) a)))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: exp with complex power real part (p55)
+Starting program: (λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision double result: (λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision single result: (λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision posit16 timed out or failed
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (re (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+|       |start prog|double|single|posit16|
+|double |0.01357312|0.0135|0.0135|#f     |
+|single |14.8817556|14.881|14.881|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: exp with complex power imaginary part (p55)
+Starting program: (λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision double result: (λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision single result: (λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+Precision posit16 timed out or failed
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+'(λ (xre xim) (im (/.c (+.c (exp.c (complex xre xim)) (exp.c (neg.c (complex xre xim)))) (complex 2 0))))
+#f
+|       |start prog|double|single|posit16|
+|double |43.6210515|43.621|43.621|#f     |
+|single |13.8765198|13.876|13.876|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Euler formula real part (p55)
+Starting program: (λ (x y) (re (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+Precision double result: (λ (x y) (re (complex (* (cos y) (/ (exp (log (+ (exp (- x)) (exp x)))) 2)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+Precision single result: (λ (x y) (/ (+ (* (* (sqrt (exp x)) (sqrt (exp x))) (cos y)) (/ (cos y) (exp x))) 2))
+Precision posit16 timed out or failed
+'(λ (x y) (re (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (re (complex (* (cos y) (/ (exp (log (+ (exp (- x)) (exp x)))) 2)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (/ (+ (* (* (sqrt (exp x)) (sqrt (exp x))) (cos y)) (/ (cos y) (exp x))) 2))
+#f
+'(λ (x y) (re (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (re (complex (* (cos y) (/ (exp (log (+ (exp (- x)) (exp x)))) 2)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (/ (+ (* (* (sqrt (exp x)) (sqrt (exp x))) (cos y)) (/ (cos y) (exp x))) 2))
+#f
+'(λ (x y) (re (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (re (complex (* (cos y) (/ (exp (log (+ (exp (- x)) (exp x)))) 2)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (/ (+ (* (* (sqrt (exp x)) (sqrt (exp x))) (cos y)) (/ (cos y) (exp x))) 2))
+#f
+|       |start prog|double|single|posit16|
+|double |0.00914624|0.0113|0.0211|#f     |
+|single |14.7648150|14.764|14.765|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Euler formula imaginary part (p55)
+Starting program: (λ (x y) (im (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+Precision double result: (λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (+ (* 2 x) (log (exp (* 1/60 (pow x 5))))) (* (pow x 3) 1/3)) 2) (sin y)))))
+Precision single result: (λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (* (pow x 3) 1/3) (+ (* 2 x) (* 1/60 (pow x 5)))) 2) (sin y)))))
+Precision posit16 timed out or failed
+'(λ (x y) (im (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (+ (* 2 x) (log (exp (* 1/60 (pow x 5))))) (* (pow x 3) 1/3)) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (* (pow x 3) 1/3) (+ (* 2 x) (* 1/60 (pow x 5)))) 2) (sin y)))))
+#f
+'(λ (x y) (im (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (+ (* 2 x) (log (exp (* 1/60 (pow x 5))))) (* (pow x 3) 1/3)) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (* (pow x 3) 1/3) (+ (* 2 x) (* 1/60 (pow x 5)))) 2) (sin y)))))
+#f
+'(λ (x y) (im (complex (* (/ (+ (exp x) (exp (- x))) 2) (cos y)) (* (/ (- (exp x) (exp (- x))) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (+ (* 2 x) (log (exp (* 1/60 (pow x 5))))) (* (pow x 3) 1/3)) 2) (sin y)))))
+'(λ (x y) (im (complex (* (cos y) (/ (+ (exp (- x)) (exp x)) 2)) (* (/ (+ (* (pow x 3) 1/3) (+ (* 2 x) (* 1/60 (pow x 5)))) 2) (sin y)))))
+#f
+|       |start prog|double|single|posit16|
+|double |43.3172007|0.7533|0.7137|#f     |
+|single |13.9011224|13.823|13.751|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: 3.9.1 real part (p56)
+Starting program: (λ () (re (+.c (+.c (+.c (+.c (+.c (+.c (*.c (*.c (*.c (*.c (*.c (complex -1 1) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (*.c (*.c (*.c (*.c (*.c (complex 6 0) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (*.c (*.c (complex 15 0) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (*.c (complex 20 0) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (complex 15 0) (complex -1 1)) (complex -1 1))) (*.c (complex 6 0) (complex -1 1))) (complex 1 0))))
+Precision double result: (λ () (re (+.c (complex 1 0) (+.c (*.c (complex 6 0) (complex -1 1)) (+.c (+.c (+.c (*.c (complex -1 1) (*.c (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))) (complex -1 1))) (+.c (*.c (complex -1 1) (*.c (*.c (*.c (complex -1 1) (*.c (complex -1 1) (complex -1 1))) (complex -1 1)) (complex -1 1))) (*.c (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex 6 0) (complex -1 1))))) (complex -1 1)))) (*.c (*.c (complex -1 1) (*.c (complex 20 0) (complex -1 1))) (complex -1 1))) (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))))))))
+Precision single result: (λ () (re (+.c (complex 1 0) (+.c (*.c (complex 6 0) (complex -1 1)) (+.c (+.c (+.c (*.c (complex -1 1) (*.c (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))) (complex -1 1))) (+.c (*.c (complex -1 1) (*.c (*.c (*.c (complex -1 1) (*.c (complex -1 1) (complex -1 1))) (complex -1 1)) (complex -1 1))) (*.c (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex 6 0) (complex -1 1))))) (complex -1 1)))) (*.c (*.c (complex -1 1) (*.c (complex 20 0) (complex -1 1))) (complex -1 1))) (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))))))))
+Precision posit16 result: (λ () (re (+.c (complex 1 0) (+.c (*.c (complex 6 0) (complex -1 1)) (+.c (+.c (+.c (*.c (complex -1 1) (*.c (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))) (complex -1 1))) (+.c (*.c (complex -1 1) (*.c (*.c (*.c (complex -1 1) (*.c (complex -1 1) (complex -1 1))) (complex -1 1)) (complex -1 1))) (*.c (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex -1 1) (*.c (complex 6 0) (complex -1 1))))) (complex -1 1)))) (*.c (*.c (complex -1 1) (*.c (complex 20 0) (complex -1 1))) (complex -1 1))) (*.c (complex -1 1) (*.c (complex 15 0) (complex -1 1))))))))
+'(λ () (re (+.c (+.c (+.c (+.c (+.c (+.c (*.c (*.c (*.c (*.c (*.c (complex -1 1) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (*.c (*.c (*.c (*.c (*.c (complex 6 0) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (*.c (*.c (complex 15 0) (complex -1 1)) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (*.c (complex 20 0) (complex -1 1)) (complex -1 1)) (complex -1 1))) (*.c (*.c (complex 15 0) (complex -1 1)) (complex -1 1))) (*.c (complex 6 0) (complex -1 1))) (complex 1 0))))

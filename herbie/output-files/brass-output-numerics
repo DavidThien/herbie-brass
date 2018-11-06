@@ -1,0 +1,393 @@
+Running Herbie on 29 tests (seed: 1963139789)...
+Now running test: The quadratic formula (r1)
+Starting program: (λ (a b c) (/ (+ (- b) (sqrt (- (* b b) (* (* 4 a) c)))) (* 2 a)))
+Precision double result: (λ (a b c) (if (<= b -4.985119955878157e+146) (- (/ c b) (/ b a)) (if (<= b 7.274421144991713e-117) (/ (+ (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a)) (if (<= b 3.4170010218030277e+42) (/ (* c (* 4 a)) (* (- (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a))) (/ (- c) b)))))
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (a b c) (/ (+ (- b) (sqrt (- (* b b) (* (* 4 a) c)))) (* 2 a)))
+'(λ (a b c) (if (<= b -4.985119955878157e+146) (- (/ c b) (/ b a)) (if (<= b 7.274421144991713e-117) (/ (+ (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a)) (if (<= b 3.4170010218030277e+42) (/ (* c (* 4 a)) (* (- (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a))) (/ (- c) b)))))
+#f
+#f
+'(λ (a b c) (/ (+ (- b) (sqrt (- (* b b) (* (* 4 a) c)))) (* 2 a)))
+'(λ (a b c) (if (<= b -4.985119955878157e+146) (- (/ c b) (/ b a)) (if (<= b 7.274421144991713e-117) (/ (+ (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a)) (if (<= b 3.4170010218030277e+42) (/ (* c (* 4 a)) (* (- (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a))) (/ (- c) b)))))
+#f
+#f
+'(λ (a b c) (/ (+ (- b) (sqrt (- (* b b) (* (* 4 a) c)))) (* 2 a)))
+'(λ (a b c) (if (<= b -4.985119955878157e+146) (- (/ c b) (/ b a)) (if (<= b 7.274421144991713e-117) (/ (+ (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a)) (if (<= b 3.4170010218030277e+42) (/ (* c (* 4 a)) (* (- (- b) (sqrt (- (* b b) (* c (* 4 a))))) (* 2 a))) (/ (- c) b)))))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |33.3021231|9.2730|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: The quadratic formula (r2)
+Starting program: (λ (a b c) (/ (- (- b) (sqrt (- (* b b) (* 4 (* a c))))) (* 2 a)))
+Precision double result: (λ (a b c) (if (<= b -9.309040831895071e-80) (- (/ c b)) (if (<= b 200905022.18890747) (* (/ 1 (* 2 a)) (- (- b) (sqrt (- (* b b) (* (* c a) 4))))) (- (/ c b) (/ b a)))))
+Precision single result: (λ (a b c) 0)
+Precision posit16 timed out or failed
+'(λ (a b c) (/ (- (- b) (sqrt (- (* b b) (* 4 (* a c))))) (* 2 a)))
+'(λ (a b c) (if (<= b -9.309040831895071e-80) (- (/ c b)) (if (<= b 200905022.18890747) (* (/ 1 (* 2 a)) (- (- b) (sqrt (- (* b b) (* (* c a) 4))))) (- (/ c b) (/ b a)))))
+'(λ (a b c) 0)
+#f
+'(λ (a b c) (/ (- (- b) (sqrt (- (* b b) (* 4 (* a c))))) (* 2 a)))
+'(λ (a b c) (if (<= b -9.309040831895071e-80) (- (/ c b)) (if (<= b 200905022.18890747) (* (/ 1 (* 2 a)) (- (- b) (sqrt (- (* b b) (* (* c a) 4))))) (- (/ c b) (/ b a)))))
+'(λ (a b c) 0)
+#f
+'(λ (a b c) (/ (- (- b) (sqrt (- (* b b) (* 4 (* a c))))) (* 2 a)))
+'(λ (a b c) (if (<= b -9.309040831895071e-80) (- (/ c b)) (if (<= b 200905022.18890747) (* (/ 1 (* 2 a)) (- (- b) (sqrt (- (* b b) (* (* c a) 4))))) (- (/ c b) (/ b a)))))
+'(λ (a b c) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |33.2615100|10.633|55.981|#f     |
+|single |29.4338585|19.528|8.3898|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Difference of squares
+Starting program: (λ (a b) (- (* a a) (* b b)))
+Precision double result: (λ (a b) (* (+ b a) (- a b)))
+Precision single result: (λ (a b) (- (* a a) (* (* (* (cbrt (cbrt (* b b))) (cbrt (cbrt (* b b)))) (cbrt (cbrt (* b b)))) (* (cbrt (* b b)) (cbrt (* b b))))))
+Precision posit16 timed out or failed
+'(λ (a b) (- (* a a) (* b b)))
+'(λ (a b) (* (+ b a) (- a b)))
+'(λ (a b) (- (* a a) (* (* (* (cbrt (cbrt (* b b))) (cbrt (cbrt (* b b)))) (cbrt (cbrt (* b b)))) (* (cbrt (* b b)) (cbrt (* b b))))))
+#f
+'(λ (a b) (- (* a a) (* b b)))
+'(λ (a b) (* (+ b a) (- a b)))
+'(λ (a b) (- (* a a) (* (* (* (cbrt (cbrt (* b b))) (cbrt (cbrt (* b b)))) (cbrt (cbrt (* b b)))) (* (cbrt (* b b)) (cbrt (* b b))))))
+#f
+'(λ (a b) (- (* a a) (* b b)))
+'(λ (a b) (* (+ b a) (- a b)))
+'(λ (a b) (- (* a a) (* (* (* (cbrt (cbrt (* b b))) (cbrt (cbrt (* b b)))) (cbrt (cbrt (* b b)))) (* (cbrt (* b b)) (cbrt (* b b))))))
+#f
+|       |start prog|double|single|posit16|
+|double |0.00625   |0.0011|0.8081|#f     |
+|single |0.11216992|0.1123|0.1693|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Area of a triangle
+Starting program: (λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+Precision double timed out or failed
+Precision single timed out or failed
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+Precision posit16 timed out or failed
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+#f
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+#f
+'(λ (a b c) (sqrt (* (* (* (/ (+ (+ a b) c) 2) (- (/ (+ (+ a b) c) 2) a)) (- (/ (+ (+ a b) c) 2) b)) (- (/ (+ (+ a b) c) 2) c))))
+#f
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |#f        |#f    |#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: ln(1 + x)
+Starting program: (λ (x) (log (+ 1 x)))
+Precision double result: (λ (x) (if (<= x 0.00011828931098397301) (+ (* (* x x) (- (* x 1/3) 1/2)) x) (log (+ 1 x))))
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x) (log (+ 1 x)))
+'(λ (x) (if (<= x 0.00011828931098397301) (+ (* (* x x) (- (* x 1/3) 1/2)) x) (log (+ 1 x))))
+#f
+#f
+'(λ (x) (log (+ 1 x)))
+'(λ (x) (if (<= x 0.00011828931098397301) (+ (* (* x x) (- (* x 1/3) 1/2)) x) (log (+ 1 x))))
+#f
+#f
+'(λ (x) (log (+ 1 x)))
+'(λ (x) (if (<= x 0.00011828931098397301) (+ (* (* x x) (- (* x 1/3) 1/2)) x) (log (+ 1 x))))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |38.6148238|0.1489|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Compound Interest
+Starting program: (λ (i n) (* 100 (/ (- (pow (+ 1 (/ i n)) n) 1) (/ i n))))
+Precision double result: (λ (i n) (if (<= i -8.243167029437052) (/ (+ (pow (/ i n) n) -1) (/ (/ i n) 100)) (if (<= i 394.76852801529816) (* (+ (pow E (log (* (* i i) 50/3))) (+ (* 50 i) 100)) n) 0)))
+Precision single result: (λ (i n) 0)
+Precision posit16 timed out or failed
+'(λ (i n) (* 100 (/ (- (pow (+ 1 (/ i n)) n) 1) (/ i n))))
+'(λ (i n) (if (<= i -8.243167029437052) (/ (+ (pow (/ i n) n) -1) (/ (/ i n) 100)) (if (<= i 394.76852801529816) (* (+ (pow E (log (* (* i i) 50/3))) (+ (* 50 i) 100)) n) 0)))
+'(λ (i n) 0)
+#f
+'(λ (i n) (* 100 (/ (- (pow (+ 1 (/ i n)) n) 1) (/ i n))))
+'(λ (i n) (if (<= i -8.243167029437052) (/ (+ (pow (/ i n) n) -1) (/ (/ i n) 100)) (if (<= i 394.76852801529816) (* (+ (pow E (log (* (* i i) 50/3))) (+ (* 50 i) 100)) n) 0)))
+'(λ (i n) 0)
+#f
+'(λ (i n) (* 100 (/ (- (pow (+ 1 (/ i n)) n) 1) (/ i n))))
+'(λ (i n) (if (<= i -8.243167029437052) (/ (+ (pow (/ i n) n) -1) (/ (/ i n) 100)) (if (<= i 394.76852801529816) (* (+ (pow E (log (* (* i i) 50/3))) (+ (* 50 i) 100)) n) 0)))
+'(λ (i n) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |47.5541476|14.202|51.233|#f     |
+|single |20.1953120|3.5806|6.6784|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: x / (x^2 + 1)
+Starting program: (λ (x) (/ x (+ (* x x) 1)))
+Precision double result: (λ (x) (if (or (<= x -571.3153247807801) (not (<= x 987.8759996213632))) (- (+ (/ 1 (pow x 5)) (/ 1 x)) (/ 1 (pow x 3))) (* (/ x (- (* (* x x) (* x x)) 1)) (- (* x x) 1))))
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x) (/ x (+ (* x x) 1)))
+'(λ (x) (if (or (<= x -571.3153247807801) (not (<= x 987.8759996213632))) (- (+ (/ 1 (pow x 5)) (/ 1 x)) (/ 1 (pow x 3))) (* (/ x (- (* (* x x) (* x x)) 1)) (- (* x x) 1))))
+#f
+#f
+'(λ (x) (/ x (+ (* x x) 1)))
+'(λ (x) (if (or (<= x -571.3153247807801) (not (<= x 987.8759996213632))) (- (+ (/ 1 (pow x 5)) (/ 1 x)) (/ 1 (pow x 3))) (* (/ x (- (* (* x x) (* x x)) 1)) (- (* x x) 1))))
+#f
+#f
+'(λ (x) (/ x (+ (* x x) 1)))
+'(λ (x) (if (or (<= x -571.3153247807801) (not (<= x 987.8759996213632))) (- (+ (/ 1 (pow x 5)) (/ 1 x)) (/ 1 (pow x 3))) (* (/ x (- (* (* x x) (* x x)) 1)) (- (* x x) 1))))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |14.5774440|0.0078|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Complex division, real part
+Starting program: (λ (a b c d) (/ (+ (* a c) (* b d)) (+ (* c c) (* d d))))
+Precision double result: (λ (a b c d) (if (<= d 1.9154810727478084e+87) (* (/ (+ (* a c) (* d b)) (sqrt (+ (* d d) (* c c)))) (/ 1 (sqrt (+ (* d d) (* c c))))) (* (/ 1 (sqrt (+ (* d d) (* c c)))) b)))
+Precision single result: (λ (a b c d) 0)
+Precision posit16 timed out or failed
+'(λ (a b c d) (/ (+ (* a c) (* b d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (if (<= d 1.9154810727478084e+87) (* (/ (+ (* a c) (* d b)) (sqrt (+ (* d d) (* c c)))) (/ 1 (sqrt (+ (* d d) (* c c))))) (* (/ 1 (sqrt (+ (* d d) (* c c)))) b)))
+'(λ (a b c d) 0)
+#f
+'(λ (a b c d) (/ (+ (* a c) (* b d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (if (<= d 1.9154810727478084e+87) (* (/ (+ (* a c) (* d b)) (sqrt (+ (* d d) (* c c)))) (/ 1 (sqrt (+ (* d d) (* c c))))) (* (/ 1 (sqrt (+ (* d d) (* c c)))) b)))
+'(λ (a b c d) 0)
+#f
+'(λ (a b c d) (/ (+ (* a c) (* b d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (if (<= d 1.9154810727478084e+87) (* (/ (+ (* a c) (* d b)) (sqrt (+ (* d d) (* c c)))) (/ 1 (sqrt (+ (* d d) (* c c))))) (* (/ 1 (sqrt (+ (* d d) (* c c)))) b)))
+'(λ (a b c d) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |25.7888195|25.674|51.928|#f     |
+|single |29.4425201|29.441|6.2144|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Complex division, imag part
+Starting program: (λ (a b c d) (/ (- (* b c) (* a d)) (+ (* c c) (* d d))))
+Precision double result: (λ (a b c d) (/ 1 (/ (+ (* d d) (* c c)) (- (* b c) (* a d)))))
+Precision single result: (λ (a b c d) 0)
+Precision posit16 timed out or failed
+'(λ (a b c d) (/ (- (* b c) (* a d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (/ 1 (/ (+ (* d d) (* c c)) (- (* b c) (* a d)))))
+'(λ (a b c d) 0)
+#f
+'(λ (a b c d) (/ (- (* b c) (* a d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (/ 1 (/ (+ (* d d) (* c c)) (- (* b c) (* a d)))))
+'(λ (a b c d) 0)
+#f
+'(λ (a b c d) (/ (- (* b c) (* a d)) (+ (* c c) (* d d))))
+'(λ (a b c d) (/ 1 (/ (+ (* d d) (* c c)) (- (* b c) (* a d)))))
+'(λ (a b c d) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |25.1284133|25.280|51.636|#f     |
+|single |29.4427499|29.446|5.9932|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: arccos
+Starting program: (λ (x) (* 2 (atan (sqrt (/ (- 1 x) (+ 1 x))))))
+Precision double result: (λ (x) (* (atan (sqrt (/ (- 1 x) (+ 1 x)))) 2))
+Precision single result: (λ (x) (* 2 (atan (sqrt (* (/ (sqrt (- 1 x)) (* (cbrt (+ 1 x)) (cbrt (+ 1 x)))) (/ (sqrt (- 1 x)) (cbrt (+ 1 x))))))))
+Precision posit16 timed out or failed
+'(λ (x) (* 2 (atan (sqrt (/ (- 1 x) (+ 1 x))))))
+'(λ (x) (* (atan (sqrt (/ (- 1 x) (+ 1 x)))) 2))
+'(λ (x) (* 2 (atan (sqrt (* (/ (sqrt (- 1 x)) (* (cbrt (+ 1 x)) (cbrt (+ 1 x)))) (/ (sqrt (- 1 x)) (cbrt (+ 1 x))))))))
+#f
+'(λ (x) (* 2 (atan (sqrt (/ (- 1 x) (+ 1 x))))))
+'(λ (x) (* (atan (sqrt (/ (- 1 x) (+ 1 x)))) 2))
+'(λ (x) (* 2 (atan (sqrt (* (/ (sqrt (- 1 x)) (* (cbrt (+ 1 x)) (cbrt (+ 1 x)))) (/ (sqrt (- 1 x)) (cbrt (+ 1 x))))))))
+#f
+'(λ (x) (* 2 (atan (sqrt (/ (- 1 x) (+ 1 x))))))
+'(λ (x) (* (atan (sqrt (/ (- 1 x) (+ 1 x)))) 2))
+'(λ (x) (* 2 (atan (sqrt (* (/ (sqrt (- 1 x)) (* (cbrt (+ 1 x)) (cbrt (+ 1 x)))) (/ (sqrt (- 1 x)) (cbrt (+ 1 x))))))))
+#f
+|       |start prog|double|single|posit16|
+|double |0.0145    |0.0145|0.0341|#f     |
+|single |0.007     |0.007 |0.009 |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: fma_test1
+Starting program: (λ (t) (+ (* (+ 1 (* t 2e-16)) (+ 1 (* t 2e-16))) (- -1 (* 2 (* t 2e-16)))))
+Precision double result: (λ (t) (* (* 2e-16 (* t 2e-16)) t))
+Precision single result: (λ (t) (* (* t 3.9999999999999997e-32) t))
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+Precision posit16 timed out or failed
+'(λ (t) (+ (* (+ 1 (* t 2e-16)) (+ 1 (* t 2e-16))) (- -1 (* 2 (* t 2e-16)))))
+'(λ (t) (* (* 2e-16 (* t 2e-16)) t))
+'(λ (t) (* (* t 3.9999999999999997e-32) t))
+#f
+'(λ (t) (+ (* (+ 1 (* t 2e-16)) (+ 1 (* t 2e-16))) (- -1 (* 2 (* t 2e-16)))))
+'(λ (t) (* (* 2e-16 (* t 2e-16)) t))
+'(λ (t) (* (* t 3.9999999999999997e-32) t))
+#f
+'(λ (t) (+ (* (+ 1 (* t 2e-16)) (+ 1 (* t 2e-16))) (- -1 (* 2 (* t 2e-16)))))
+'(λ (t) (* (* 2e-16 (* t 2e-16)) t))
+'(λ (t) (* (* t 3.9999999999999997e-32) t))
+#f
+|       |start prog|double|single|posit16|
+|double |61.8432489|0.3045|0.3248|#f     |
+|single |27.4966388|0.6614|0.6059|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: fma_test2
+Starting program: (λ (t) (- (* 1.7e+308 t) 1.7e+308))
+Precision double result: (λ (t) (- (* t 1.7e+308) 1.7e+308))
+Precision single timed out or failed
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+"Warning, posits don't currently support preconditions."
+"Ignoring for now."
+Precision posit16 timed out or failed
+'(λ (t) (- (* 1.7e+308 t) 1.7e+308))
+'(λ (t) (- (* t 1.7e+308) 1.7e+308))
+#f
+#f
+'(λ (t) (- (* 1.7e+308 t) 1.7e+308))
+'(λ (t) (- (* t 1.7e+308) 1.7e+308))
+#f
+#f
+'(λ (t) (- (* 1.7e+308 t) 1.7e+308))
+'(λ (t) (- (* t 1.7e+308) 1.7e+308))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |49.1285650|49.128|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: NMSE Section 6.1 mentioned, A
+Starting program: (λ (x eps) (/ (- (* (+ 1 (/ 1 eps)) (exp (- (* (- 1 eps) x)))) (* (- (/ 1 eps) 1) (exp (- (* (+ 1 eps) x))))) 2))
+Precision double result: (λ (x eps) (if (<= x 161.1949586560128) (/ (- (+ 2 (* 2/3 (pow x 3))) (pow x 2)) 2) (/ (- (* (+ 1 (/ 1 eps)) (exp (* (- 1 eps) (- x)))) (* (- (/ 1 eps) 1) (exp (* (+ eps 1) (- x))))) 2)))
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x eps) (/ (- (* (+ 1 (/ 1 eps)) (exp (- (* (- 1 eps) x)))) (* (- (/ 1 eps) 1) (exp (- (* (+ 1 eps) x))))) 2))
+'(λ (x eps) (if (<= x 161.1949586560128) (/ (- (+ 2 (* 2/3 (pow x 3))) (pow x 2)) 2) (/ (- (* (+ 1 (/ 1 eps)) (exp (* (- 1 eps) (- x)))) (* (- (/ 1 eps) 1) (exp (* (+ eps 1) (- x))))) 2)))
+#f
+#f
+'(λ (x eps) (/ (- (* (+ 1 (/ 1 eps)) (exp (- (* (- 1 eps) x)))) (* (- (/ 1 eps) 1) (exp (- (* (+ 1 eps) x))))) 2))
+'(λ (x eps) (if (<= x 161.1949586560128) (/ (- (+ 2 (* 2/3 (pow x 3))) (pow x 2)) 2) (/ (- (* (+ 1 (/ 1 eps)) (exp (* (- 1 eps) (- x)))) (* (- (/ 1 eps) 1) (exp (* (+ eps 1) (- x))))) 2)))
+#f
+#f
+'(λ (x eps) (/ (- (* (+ 1 (/ 1 eps)) (exp (- (* (- 1 eps) x)))) (* (- (/ 1 eps) 1) (exp (- (* (+ 1 eps) x))))) 2))
+'(λ (x eps) (if (<= x 161.1949586560128) (/ (- (+ 2 (* 2/3 (pow x 3))) (pow x 2)) 2) (/ (- (* (+ 1 (/ 1 eps)) (exp (* (- 1 eps) (- x)))) (* (- (/ 1 eps) 1) (exp (* (+ eps 1) (- x))))) 2)))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |29.7011017|1.0317|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: NMSE Section 6.1 mentioned, B
+Starting program: (λ (a b) (* (* (/ PI 2) (/ 1 (- (* b b) (* a a)))) (- (/ 1 a) (/ 1 b))))
+Precision double result: (λ (a b) (/ (/ (* 1/2 PI) (+ a b)) (* a b)))
+Precision single result: (λ (a b) 0)
+Precision posit16 timed out or failed
+'(λ (a b) (* (* (/ PI 2) (/ 1 (- (* b b) (* a a)))) (- (/ 1 a) (/ 1 b))))
+'(λ (a b) (/ (/ (* 1/2 PI) (+ a b)) (* a b)))
+'(λ (a b) 0)
+#f
+'(λ (a b) (* (* (/ PI 2) (/ 1 (- (* b b) (* a a)))) (- (/ 1 a) (/ 1 b))))
+'(λ (a b) (/ (/ (* 1/2 PI) (+ a b)) (* a b)))
+'(λ (a b) 0)
+#f
+'(λ (a b) (* (* (/ PI 2) (/ 1 (- (* b b) (* a a)))) (- (/ 1 a) (/ 1 b))))
+'(λ (a b) (/ (/ (* 1/2 PI) (+ a b)) (* a b)))
+'(λ (a b) 0)
+#f
+|       |start prog|double|single|posit16|
+|double |14.5890286|0.2384|37.065|#f     |
+|single |26.6504409|20.353|3.0155|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Radioactive exchange between two surfaces
+Starting program: (λ (x y) (- (pow x 4) (pow y 4)))
+Precision double result: (λ (x y) (- (pow x 4) (pow y 4)))
+Precision single result: (λ (x y) (- (pow x 4) (* (pow y 2) (sqrt (* (* (cbrt (pow y 4)) (cbrt (pow y 4))) (cbrt (pow y 4)))))))
+Precision posit16 timed out or failed
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (* (pow y 2) (sqrt (* (* (cbrt (pow y 4)) (cbrt (pow y 4))) (cbrt (pow y 4)))))))
+#f
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (* (pow y 2) (sqrt (* (* (cbrt (pow y 4)) (cbrt (pow y 4))) (cbrt (pow y 4)))))))
+#f
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (pow y 4)))
+'(λ (x y) (- (pow x 4) (* (pow y 2) (sqrt (* (* (cbrt (pow y 4)) (cbrt (pow y 4))) (cbrt (pow y 4)))))))
+#f
+|       |start prog|double|single|posit16|
+|double |0.001625  |0.0016|0.2934|#f     |
+|single |0.10289306|0.1028|0.1085|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Kahan's exp quotient
+Starting program: (λ (x) (/ (- (exp x) 1) x))
+Precision double result: (λ (x) (if (<= x -0.00017667365152862827) (/ (/ (+ (pow (pow (exp x) 6) 3) -1) (+ 1 (- (* (pow (exp x) 6) (pow (exp x) 6)) (- (pow (exp x) 6))))) (* (+ (- (* (exp (+ x x)) (exp (+ x x))) (- (exp (+ x x)))) 1) (* x (+ (exp x) 1)))) (+ (+ (* x 1/2) 1) (* 1/6 (pow x 2)))))
+Precision single timed out or failed
+Precision posit16 timed out or failed
+'(λ (x) (/ (- (exp x) 1) x))
+'(λ (x) (if (<= x -0.00017667365152862827) (/ (/ (+ (pow (pow (exp x) 6) 3) -1) (+ 1 (- (* (pow (exp x) 6) (pow (exp x) 6)) (- (pow (exp x) 6))))) (* (+ (- (* (exp (+ x x)) (exp (+ x x))) (- (exp (+ x x)))) 1) (* x (+ (exp x) 1)))) (+ (+ (* x 1/2) 1) (* 1/6 (pow x 2)))))
+#f
+#f
+'(λ (x) (/ (- (exp x) 1) x))
+'(λ (x) (if (<= x -0.00017667365152862827) (/ (/ (+ (pow (pow (exp x) 6) 3) -1) (+ 1 (- (* (pow (exp x) 6) (pow (exp x) 6)) (- (pow (exp x) 6))))) (* (+ (- (* (exp (+ x x)) (exp (+ x x))) (- (exp (+ x x)))) 1) (* x (+ (exp x) 1)))) (+ (+ (* x 1/2) 1) (* 1/6 (pow x 2)))))
+#f
+#f
+'(λ (x) (/ (- (exp x) 1) x))
+'(λ (x) (if (<= x -0.00017667365152862827) (/ (/ (+ (pow (pow (exp x) 6) 3) -1) (+ 1 (- (* (pow (exp x) 6) (pow (exp x) 6)) (- (pow (exp x) 6))))) (* (+ (- (* (exp (+ x x)) (exp (+ x x))) (- (exp (+ x x)))) 1) (* x (+ (exp x) 1)))) (+ (+ (* x 1/2) 1) (* 1/6 (pow x 2)))))
+#f
+#f
+|       |start prog|double|single|posit16|
+|double |40.3758619|0.3538|#f    |#f     |
+|single |#f        |#f    |#f    |#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: simple fma test
+Starting program: (λ (x y z) (- (fma x y z) (+ 1 (+ (* x y) z))))
+Precision double result: (λ (x y z) (if (<= z -239682457.4324135) (* (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1)))) (cbrt (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))))))) (if (<= z 0.006382879148049039) (log (exp (- (- (fma x y z) (* x y)) (- z -1)))) (- (- (fma x y z) z) (* (* (cbrt (+ (* x y) 1)) (cbrt (+ (* x y) 1))) (cbrt (+ (* x y) 1)))))))
+Precision single result: (λ (x y z) (- (- (fma x y z) z) (+ (* y x) 1)))
+Precision posit16 timed out or failed
+'(λ (x y z) (- (fma x y z) (+ 1 (+ (* x y) z))))
+'(λ (x y z) (if (<= z -239682457.4324135) (* (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1)))) (cbrt (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))))))) (if (<= z 0.006382879148049039) (log (exp (- (- (fma x y z) (* x y)) (- z -1)))) (- (- (fma x y z) z) (* (* (cbrt (+ (* x y) 1)) (cbrt (+ (* x y) 1))) (cbrt (+ (* x y) 1)))))))
+'(λ (x y z) (- (- (fma x y z) z) (+ (* y x) 1)))
+#f
+'(λ (x y z) (- (fma x y z) (+ 1 (+ (* x y) z))))
+'(λ (x y z) (if (<= z -239682457.4324135) (* (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1)))) (cbrt (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))))))) (if (<= z 0.006382879148049039) (log (exp (- (- (fma x y z) (* x y)) (- z -1)))) (- (- (fma x y z) z) (* (* (cbrt (+ (* x y) 1)) (cbrt (+ (* x y) 1))) (cbrt (+ (* x y) 1)))))))
+'(λ (x y z) (- (- (fma x y z) z) (+ (* y x) 1)))
+#f
+'(λ (x y z) (- (fma x y z) (+ 1 (+ (* x y) z))))
+'(λ (x y z) (if (<= z -239682457.4324135) (* (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1)))) (cbrt (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (* (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))) (cbrt (- (* (* (cbrt (- (fma x y z) z)) (cbrt (- (fma x y z) z))) (cbrt (- (fma x y z) z))) (+ (* x y) 1))))))) (if (<= z 0.006382879148049039) (log (exp (- (- (fma x y z) (* x y)) (- z -1)))) (- (- (fma x y z) z) (* (* (cbrt (+ (* x y) 1)) (cbrt (+ (* x y) 1))) (cbrt (+ (* x y) 1)))))))
+'(λ (x y z) (- (- (fma x y z) z) (+ (* y x) 1)))
+#f
+|       |start prog|double|single|posit16|
+|double |45.3005000|19.841|30.878|#f     |
+|single |26.3878691|25.925|25.974|#f     |
+|posit16|#f        |#f    |#f    |#f     |
+
+Now running test: Rectangular parallelepiped of dimension a×b×c
+Starting program: (λ () (* 2 (+ (+ (* 1 (/ 1 9)) (* (/ 1 9) (/ 1 9))) (* (/ 1 9) 1))))
+Precision double result: (λ () 38/81)
+Precision single result: (λ () 38/81)
+Precision posit16 result: (λ () 38/81)
+'(λ () (* 2 (+ (+ (* 1 (/ 1 9)) (* (/ 1 9) (/ 1 9))) (* (/ 1 9) 1))))

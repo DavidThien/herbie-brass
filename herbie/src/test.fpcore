@@ -1,0 +1,9 @@
+; -*- mode: scheme -*-
+
+(FPCore (a) a)
+
+(FPCore (x)
+  (- (sqrt (- x 1.0)) (sqrt x)))
+
+(FPCore (a x)
+  (- (exp (* a x)) 1.0))

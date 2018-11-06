@@ -327,7 +327,6 @@
   (expand-parametric (expand-associativity (unfold-let prog)) ctx))
 
 (define (resugar-program prog)
-  (println prog)
   (expand-parametric-reverse (expand-associativity (unfold-let prog))))
 
 (define (replace-vars dict expr)

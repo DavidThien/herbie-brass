@@ -1,0 +1,16 @@
+Running Herbie on 30 tests (seed: 227800506)...
+Now running test: Graphics.Rendering.Chart.Backend.Diagrams:calcFontMetrics from Chart-diagrams-1.5.1
+Starting program: (λ (x y z t) (* x (/ (* (/ y z) t) t)))
+Precision double result: (λ (x y z t) (if (<= (/ y z) -5.80526645327899e+251) (/ y (/ z x)) (if (<= (/ y z) -7.0602470770437e-314) (* (/ y z) x) (if (<= (/ y z) 6.7872451889861e-316) (/ (* x y) z) (/ x (/ z y))))))
+Precision single result: (λ (x y z t) (* (* (cbrt (* (* y x) (/ 1 z))) (cbrt (* (* y x) (/ 1 z)))) (cbrt (* (* y x) (/ 1 z)))))
+Precision posit16 result: (λ (x y z t) (*.p16 x (/.p16 (/.p16 y z) (/.p16 t t))))
+'(λ (x y z t) (* x (/ (* (/ y z) t) t)))
+'(λ (x y z t) (if (<= (/ y z) -5.80526645327899e+251) (/ y (/ z x)) (if (<= (/ y z) -7.0602470770437e-314) (* (/ y z) x) (if (<= (/ y z) 6.7872451889861e-316) (/ (* x y) z) (/ x (/ z y))))))
+'(λ (x y z t) (* (* (cbrt (* (* y x) (/ 1 z))) (cbrt (* (* y x) (/ 1 z)))) (cbrt (* (* y x) (/ 1 z)))))
+'(λ (x y z t) (*.p16 x (/.p16 (/.p16 y z) (/.p16 t t))))
+'(λ (x y z t) (* x (/ (* (/ y z) t) t)))
+'(λ (x y z t) (if (<= (/ y z) -5.80526645327899e+251) (/ y (/ z x)) (if (<= (/ y z) -7.0602470770437e-314) (* (/ y z) x) (if (<= (/ y z) 6.7872451889861e-316) (/ (* x y) z) (/ x (/ z y))))))
+'(λ (x y z t) (* (* (cbrt (* (* y x) (/ 1 z))) (cbrt (* (* y x) (/ 1 z)))) (cbrt (* (* y x) (/ 1 z)))))
+'(λ (x y z t) (*.p16 x (/.p16 (/.p16 y z) (/.p16 t t))))
+'(λ (x y z t) (* x (/ (* (/ y z) t) t)))
+'(λ (x y z t) (if (<= (/ y z) -5.80526645327899e+251) (/ y (/ z x)) (if (<= (/ y z) -7.0602470770437e-314) (* (/ y z) x) (if (<= (/ y z) 6.7872451889861e-316) (/ (* x y) z) (/ x (/ z y))))))
