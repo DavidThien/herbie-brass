@@ -101,17 +101,56 @@
         #f))))
   (set! output-string (string-append output-string (print-error-table res precisions)))
   (set! output-string (string-append output-string "\n"))
-  (displayln output-string))
+  output-string)
 
-(define (run-tests . bench-dirs)
+(define (make-worker)
+  (place ch
+    (let loop ()
+      (match (place-channel-get ch)
+        [`(apply ,self ,test)
+          (let ([result (run-test-proc test)])
+            (place-channel-put ch `(done ,self ,result)))])
+      (loop))))
+
+(define (run-tests bench-dirs num-threads)
   (define tests (append-map load-tests bench-dirs))
+  (define num-tests (length tests))
   (define seed (get-seed))
-  (printf "Running Herbie on ~a tests (seed: ~a)...\n" (length tests) seed)
-  (for/list ([t tests])
-    (run-test-proc t)))
+
+  (define workers
+    (for/list ([wid (in-range num-threads)])
+      (make-worker)))
+
+  (printf "Running ~a brass eval workers on on ~a tests (seed: ~a)\n" num-threads (length tests) seed)
+  (for ([worker workers])
+    (place-channel-put worker `(apply ,worker ,(car tests)))
+    (set! tests (cdr tests)))
+
+  (let loop ([out '()])
+    (with-handlers ([exn:break?
+                      (λ (_)
+                         (eprintf "Terimating after ~a problem~a!\n"
+                                  (length out (if (= (length out) 1) "" "s"))
+                                  out))])
+      (match-define `(done ,worker ,res) (apply sync workers))
+      (display res)
+
+      (unless (null? tests)
+        (place-channel-put worker `(apply ,worker ,(car tests)))
+        (set! tests (cdr tests)))
+
+      (define out* (cons 'done out))
+
+      (if (= (length out*) num-tests)
+        out*
+        (loop out*))))
+
+  (map place-kill workers)
+  'done)
 
 (module+ main
   (define seed (random 1 (expt 2 31)))
+  (define num-threads 1)
   (set-seed! seed)
   (command-line
    #:program "travis.rkt"
@@ -119,5 +158,7 @@
    [("--seed") rs "The random seed to use in point generation. If false (#f), a random seed is used'"
     (define given-seed (read (open-input-string rs)))
     (when given-seed (set-seed! given-seed))]
-   #:args bench-dir
-   (exit (if (apply run-tests bench-dir) 0 1))))
+   [("--threads") ts "The number of threads to use. If false (#f), defaults to 1."
+    (when ts (set! num-threads (string->number ts)))]
+   #:args bench-dirs
+   (exit (if (run-tests bench-dirs num-threads) 0 1))))
