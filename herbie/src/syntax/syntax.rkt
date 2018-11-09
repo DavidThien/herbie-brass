@@ -1095,10 +1095,10 @@
                  (sqrt.p8 posit8 posit8)
                  (sqrt.p16 posit16 posit16)
                  (sqrt.p32 posit32 posit32))]
-        [<= . ((<= real real)
-               (<=.p8 posit8 posit8)
-               (<=.p16 posit16 posit16)
-               (<=.p32 posit32 posit32))]))
+        [<= . ((<= bool real real)
+               (<=.p8 bool posit8 posit8)
+               (<=.p16 bool posit16 posit16)
+               (<=.p32 bool posit32 posit32))]))
 
 (define parametric-operators-reverse
   (make-hash (append* (for/list ([(key-val) (hash->list parametric-operators)])
