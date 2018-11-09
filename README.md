@@ -6,6 +6,7 @@ This is version 1.0 of the Herbie BRASS evaluation code.
 * git
 * racket
 * make
+* tee
 
 ## Installation instructions
 Install [racket](https://download.racket-lang.org/), then run
@@ -20,7 +21,7 @@ which will output the result of a single test to stdout and indicate if posits w
 ```
 make run
 ```
-which will create the output file `brass-output.txt` with the results of the test. You can make the eval use more threads with
+which will create the output file `brass-output.txt` with the results of the test. It will also display the results to stdout. You can make the eval use more threads with
 ```
 make run threads=n
 ```

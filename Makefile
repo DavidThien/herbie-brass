@@ -10,9 +10,9 @@ setup:
 run:
 	@echo Running Herbie BRASS evaluation
 ifeq ($(posits), n)
-	racket brass-eval.rkt --no-posits --threads $(threads) herbie/bench > brass-output.txt
+	racket brass-eval.rkt --no-posits --threads $(threads) herbie/bench | tee brass-output.txt
 else
-	racket brass-eval.rkt --threads $(threads) herbie/bench > brass-output.txt
+	racket brass-eval.rkt --threads $(threads) herbie/bench | tee brass-output.txt
 endif
 
 test:
