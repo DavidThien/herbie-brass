@@ -159,17 +159,6 @@
 
 (define (prepare-points-ranges prog precondition precision range-table #:num-points (num-points #f))
   (define points-to-sample (if num-points num-points (*num-points*)))
-  (when (and (not (eq? precondition 'TRUE))
-           (or (eq? precision 'posit8)
-               (eq? precision 'posit16)
-               (eq? precision 'posit32)
-               (eq? precision 'posit64)
-               (eq? precision 'posit128)
-               (eq? precision 'quire8)
-               (eq? precision 'quire16)
-               (eq? precision 'quire32)))
-    (println "Warning, posits don't currently support preconditions.")
-    (println "Ignoring for now."))
 
   (define (sample)
     (for/list ([var (program-variables prog)])
