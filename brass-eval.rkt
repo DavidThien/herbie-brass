@@ -13,8 +13,6 @@
 (require "herbie/src/formats/datafile.rkt")
 (require "herbie/src/float.rkt")
 
-(define precisions '(double single posit16))
-
 (define (calc-error prog precondition precision prec-res points)
   (if (and prog prec-res points)
     (begin
@@ -54,7 +52,7 @@
     (set! error-results (string-append error-results "\n")))
   error-results)
 
-(define (run-test-proc t)
+(define (run-test-proc t precisions)
   (define output-string "")
   (set! output-string (string-append output-string (format "Now running test: ~a\n" (test-name t))))
   (set! output-string (string-append output-string (format "Starting program: ~a\n" (test-program t))))
@@ -107,23 +105,25 @@
   (place ch
     (let loop ()
       (match (place-channel-get ch)
-        [`(apply ,self ,test)
-          (let ([result (run-test-proc test)])
+        [`(apply ,self ,test ,precisions)
+          (let ([result (run-test-proc test precisions)])
             (place-channel-put ch `(done ,self ,result)))])
       (loop))))
 
-(define (run-tests bench-dirs num-threads)
+(define (run-tests bench-dirs num-threads use-posits)
   (define tests (append-map load-tests bench-dirs))
   (define num-tests (length tests))
   (define seed (get-seed))
+
+  (define precisions (if use-posits '(double single posit16) '(double single)))
 
   (define workers
     (for/list ([wid (in-range num-threads)])
       (make-worker)))
 
-  (printf "Running ~a brass eval workers on on ~a tests (seed: ~a)\n" num-threads (length tests) seed)
+  (printf "Running ~a brass eval workers on ~a tests (seed: ~a)\n" num-threads (length tests) seed)
   (for ([worker workers])
-    (place-channel-put worker `(apply ,worker ,(car tests)))
+    (place-channel-put worker `(apply ,worker ,(car tests) ,precisions))
     (set! tests (cdr tests)))
 
   (let loop ([out '()])
@@ -136,7 +136,7 @@
       (display res)
 
       (unless (null? tests)
-        (place-channel-put worker `(apply ,worker ,(car tests)))
+        (place-channel-put worker `(apply ,worker ,(car tests) ,precisions))
         (set! tests (cdr tests)))
 
       (define out* (cons 'done out))
@@ -151,6 +151,7 @@
 (module+ main
   (define seed (random 1 (expt 2 31)))
   (define num-threads 1)
+  (define use-posits #t)
   (set-seed! seed)
   (command-line
    #:program "travis.rkt"
@@ -160,5 +161,7 @@
     (when given-seed (set-seed! given-seed))]
    [("--threads") ts "The number of threads to use. If false (#f), defaults to 1."
     (when ts (set! num-threads (string->number ts)))]
+   [("--no-posits") "Disable posits. Posits are on by default."
+    (set! use-posits #f)]
    #:args bench-dirs
-   (exit (if (run-tests bench-dirs num-threads) 0 1))))
+   (exit (if (run-tests bench-dirs num-threads use-posits) 0 1))))

@@ -10,9 +10,13 @@ This is version 1.0 of the Herbie BRASS evaluation code.
 ## Installation instructions
 Install [racket](https://download.racket-lang.org/), then run
 ```
-make install
+make setup
 ```
-This will install the racket `softposit-rkt` package. You can test the installation with `make test` which will output the result of a single test to stdout. You can run the full evaluation with
+This will install the racket `softposit-rkt` package and build the racket files. You can test the installation with
+```
+make test
+```
+which will output the result of a single test to stdout and indicate if posits work on your machine. Note that posits are an experimental new format not built by the Herbie team, so support across different machines is inconistent. If posits don't work on your machine, `make test` will indicate that to you and you can then disable posits by passing in `posits=n` to `make run`. You can run the full evaluation with
 ```
 make run
 ```
@@ -44,3 +48,4 @@ The first line displays the name of the test, followed by the starting program. 
 
 The table displays the average bits error of running each program in each precision. Each column represnts a fixed program, and each row represents a fixed precision. So the first column, first row in the table (with value `31.213`) is the result of running the starting program (`(λ (x) (/ (- 1 (cos x)) (* x x)))`) in double precision. There are a few things to note on this table, first Herbie was able to improve the same program running in both single and double precisionto less than a bit of error. Second, running Herbie's single precision result in double precision gives more error than the double precision result, and vice versa for single precision. Lastly, for this example, all columns or rows with `posit16` are marked `#f` because each program that it would run has an unspported operation in it.
 
+Note that if posists are disabled, then the `posit16` columns and rows will not be printed.
