@@ -16,7 +16,7 @@ This will install the racket `softposit-rkt` package and build the racket files.
 ```
 make test
 ```
-which will output the result of a single test to stdout and indicate if posits work on your machine. Note that posits are an experimental new format not built by the Herbie team, so support across different machines is inconistent. If posits don't work on your machine, `make test` will indicate that to you and you can then disable posits by passing in `posits=n` to `make run`. You can run the full evaluation with
+which will output the result of a single test to stdout and indicate if posits work on your machine. This test is expected to take a couple minutes using about half a GB of RAM and one CPU core while it runs. Note that posits are an experimental new format not built by the Herbie team, so support across different machines is inconistent. If posits don't work on your machine, `make test` will indicate that to you and you can then disable posits by passing in `posits=n` to `make run`. You can run the full evaluation with
 ```
 make run
 ```

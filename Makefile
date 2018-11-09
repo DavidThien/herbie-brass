@@ -17,7 +17,7 @@ endif
 
 test:
 	@echo Testing Herbie BRASS evaluation install \(should output a single table\)
-	@racket brass-eval.rkt test.fpcore && echo "Posits work on your machine" || echo "Posits don't work on your machine. you can disable them with \"posits=n\" when you run \"make run\""
+	@racket brass-eval.rkt test.fpcore && echo "\nPosits work on your machine" || echo "\nPosits don't work on your machine. you can disable them with \"posits=n\" when you run \"make run\""
 
 clean:
 	raco pkg remove softposit-rkt
