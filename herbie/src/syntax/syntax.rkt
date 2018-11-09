@@ -1096,6 +1096,16 @@
                  (sqrt.p16 posit16 posit16)
                  (sqrt.p32 posit32 posit32))]
         [<= . ((<= bool real real)
+               (<= bool real real real) ;; TODO: this should be handled better
+               (<= bool real real real real)
+               (<= bool real real real real real)
+               (<= bool real real real real real real)
+               (<= bool real real real real real real real)
+               (<= bool real real real real real real real real)
+               (<= bool real real real real real real real real real)
+               (<= bool real real real real real real real real real real)
+               (<= bool real real real real real real real real real real real)
+               (<= bool real real real real real real real real real real real real)
                (<=.p8 bool posit8 posit8)
                (<=.p16 bool posit16 posit16)
                (<=.p32 bool posit32 posit32))]))
