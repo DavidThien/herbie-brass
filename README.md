@@ -1,6 +1,6 @@
 # Herbie BRASS Evaluation
 
-This is version 1 of the Herbie BRASS evaluation code.
+This is version 1.0 of the Herbie BRASS evaluation code.
 
 ## Dependencies
 * git
