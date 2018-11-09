@@ -10,7 +10,7 @@ run:
 	racket brass-eval.rkt --threads $(threads) herbie/bench > brass-output.txt
 
 test:
-	@echo Testing Herbie BRASS evaluation install (should output a single table)
+	@echo Testing Herbie BRASS evaluation install \(should output a single table\)
 	racket brass-eval.rkt test.fpcore
 
 clean:
