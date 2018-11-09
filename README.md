@@ -12,7 +12,7 @@ Install [racket](https://download.racket-lang.org/), then run
 ```
 make install
 ```
-This will install the racket `softposit-rkt` package. You can then run the evaluation with
+This will install the racket `softposit-rkt` package. You can test the installation with `make test` which will output the result of a single test to stdout. You can run the full evaluation with
 ```
 make run
 ```

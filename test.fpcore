@@ -1,0 +1,6 @@
+; -*- mode: scheme -*-
+
+(FPCore (a b_2 c)
+ :name "quad2p (problem 3.2.1, positive)"
+ (let ([d (sqrt (- (* b_2 b_2) (* a c)))])
+   (/ (+ (- b_2) d) a)))
