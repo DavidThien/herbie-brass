@@ -88,7 +88,7 @@
                                         #f))))
   (define res (for/list ([precision precisions] [prec-res (cdr programs)] [res test-results])
     (for/list ([prog programs])
-      (define prog* (resugar-program prog))
+      (define prog* (list 'λ (program-variables prog) (resugar-program (program-body prog))))
       (if (and prog* (test-result? res))
         (let* ([pcon (mk-pcontext (test-result-newpoints res) (test-result-newexacts res))]
                [ctx-prec (if (or (eq? precision 'double) (eq? precision 'single)) 'real precision)]
