@@ -24,7 +24,7 @@ which will create the output file `brass-output.txt` with the results of the tes
 ```
 make run threads=n
 ```
-where `n` is the number of threads to use. The script defaults to 1
+where `n` is the number of threads to use. The script defaults to 1. Note that this command will take several hours to run, but will produce intermediate output once each test completes. Each test will take a few minutes to run.
 
 ## Description
 
