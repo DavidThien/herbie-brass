@@ -9,7 +9,7 @@ setup:
 
 run:
 	@echo Running Herbie BRASS evaluation
-ifeq ($(posits), n)
+ifeq ($(posits), disable)
 	racket brass-eval.rkt --no-posits --threads $(threads) herbie/bench | tee brass-output.txt
 else
 	racket brass-eval.rkt --threads $(threads) herbie/bench | tee brass-output.txt
@@ -17,7 +17,7 @@ endif
 
 test:
 	@echo Testing Herbie BRASS evaluation install \(should output a single table\)
-	@racket brass-eval.rkt test.fpcore && echo "\nPosits work on your machine" || echo "\nPosits don't work on your machine. you can disable them with \"posits=n\" when you run \"make run\""
+	@racket brass-eval.rkt test.fpcore && echo "\nPosits work on your machine" || echo "\nPosits don't work on your machine. you can disable them with \"posits=disable\" when you run \"make run\""
 
 clean:
 	raco pkg remove softposit-rkt
