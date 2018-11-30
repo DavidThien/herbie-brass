@@ -61,7 +61,7 @@
   [*.c-commutative     (*.c a b)               (*.c b a)])
 
 ; Posit conversions
-(define-ruleset insert/remove-p16 (arithmetic simplify posit)
+#;(define-ruleset insert/remove-p16 (arithmetic simplify posit)
   #:type ([a posit16])
   [insert-posit16 a (posit16->real (real->posit16 a))]
   [remove-posit16 (posit16->real (real->posit16 a)) a])
