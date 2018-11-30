@@ -22,7 +22,8 @@
         ['posit16 void])
       ;; Setting bit-width and num-points for errors-score
       (let ([bit-width (if (eq? precision 'double) 64 32)])
-        (errors-score (errors prog points) #:bit-width bit-width)))
+        (with-handlers ([exn:fail? (λ (e) #f)])
+          (errors-score (errors prog points) #:bit-width bit-width))))
     #f))
 
 (define (add-space-till-length str n)
@@ -149,7 +150,8 @@
   'done)
 
 (module+ main
-  (define seed (random 1 (expt 2 31)))
+  #;(define seed (random 1 (expt 2 31)))
+  (define seed 1227097170)
   (define num-threads 1)
   (define use-posits #t)
   (set-seed! seed)
