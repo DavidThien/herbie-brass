@@ -7,6 +7,7 @@ This is version 1.0 of the Herbie BRASS evaluation code.
 * racket
 * make
 * tee
+* gcc
 This evaluation must be run on Linux because the posit library is only available on Linux.
 
 ## Installation instructions
