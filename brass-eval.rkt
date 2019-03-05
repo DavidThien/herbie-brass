@@ -122,7 +122,7 @@
     (for/list ([wid (in-range num-threads)])
       (make-worker)))
 
-  (printf "Running ~a brass eval workers on ~a tests (seed: ~a)\n" num-threads (length tests) seed)
+  (printf "Running ~a brass eval workers on ~a tests (seed: ~a)\n" num-threads num-tests seed)
   (for ([worker workers])
     (place-channel-put worker `(apply ,worker ,(car tests) ,precisions))
     (set! tests (cdr tests)))
@@ -150,8 +150,7 @@
   'done)
 
 (module+ main
-  #;(define seed (random 1 (expt 2 31)))
-  (define seed 1227097170)
+  (define seed (random 1 (expt 2 31)))
   (define num-threads 1)
   (define use-posits #t)
   (set-seed! seed)
