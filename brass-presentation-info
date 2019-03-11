@@ -1,0 +1,3 @@
+Regimes:
+To test Herbie's adaptability across different input ranges, we first run Herbie on a program A with a constrained input range to get some output program X. We then rerun Herbie with an expanded range for the same mathematical expression to get an output program Y. Y is better than X by on average 23.971 bits for double-precision floating point numbers (running on the hamming suite from fpbench). Expanded Error is the error of the expanded program without Herbie's optimizations. Expanded Base Error is the error of Herbie's output program for the constrained input range on the expanded input range. Expanded Output Error is the error of Herbie's output program on the expanded input range.
+
