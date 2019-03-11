@@ -26,7 +26,7 @@
     (let* ([start-err (errors-score (test-result-start-error expanded-result))]
            [end-err (errors-score (test-result-end-error expanded-result))]
            [target-err (errors-score (test-result-target-error expanded-result))]
-           [err-diff (errors-score (- target-err end-err))])
+           [err-diff (- target-err end-err)])
       (printf "Expanded regime error improvement: ~a → ~a\n"
                start-err end-err)
       (printf "Base output error: ~a\n" target-err)
