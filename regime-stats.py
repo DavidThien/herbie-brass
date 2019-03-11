@@ -1,4 +1,5 @@
-import matplotlib.pyplot as plt
+# Note this file must be run with all the arrows in 'regimes-output.txt'
+# changed to '->'
 
 # Numbers here are the Herbie improvement on increased regimes over original
 # output in bits
