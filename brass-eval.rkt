@@ -74,7 +74,7 @@
                                           [input precision-prog-body])
                              t))
     (define result (get-test-result precision-test))
-    (if (test-result? result)
+    (if (test-success? result)
       (set! output-string (string-append output-string (format "Precision ~a result: ~a\n" precision (alt-program (test-success-end-alt result)))))
       (set! output-string (string-append output-string (format "Precision ~a timed out or failed\n" precision))))
     result))
@@ -82,12 +82,12 @@
   (define start-prog (test-program t))
   (define precondition (test-precondition t))
   (define programs (cons start-prog (for/list ([res test-results])
-                                      (if (test-result? res)
+                                      (if (test-success? res)
                                         (alt-program (test-success-end-alt res))
                                         #f))))
   (define res (for/list ([precision precisions] [prec-res (cdr programs)] [res test-results])
     (for/list ([prog programs])
-      (if (and prog (test-result? res))
+      (if (and prog (test-success? res))
         (let* ([prog* (list 'λ (program-variables prog) (resugar-program (program-body prog)))]
                [pcon (mk-pcontext (test-success-newpoints res) (test-success-newexacts res))]
                [ctx-prec (if (or (eq? precision 'double) (eq? precision 'single)) 'real precision)]
