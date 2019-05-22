@@ -11,7 +11,7 @@
   (printf "Now running test: ~a\n" (test-name base-test))
   (printf "Starting program: ~a\n" (test-program base-test))
   (define base-result (get-test-result base-test))
-  (if (test-result? base-result)
+  (if (test-success? base-result)
     (printf "Base regime error improvement: ~a → ~a\n"
             (errors-score (test-success-start-error base-result))
             (errors-score (test-success-end-error base-result)))
@@ -22,7 +22,7 @@
                                      [precondition 'TRUE]
                                      [output (caddr base-result-prog)]))
   (define expanded-result (get-test-result expanded-test))
-  (if (test-result? expanded-result)
+  (if (test-success? expanded-result)
     (let* ([start-err (errors-score (test-success-start-error expanded-result))]
            [end-err (errors-score (test-success-end-error expanded-result))]
            [target-err (errors-score (test-success-target-error expanded-result))]
