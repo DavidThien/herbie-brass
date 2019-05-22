@@ -1,10 +1,3 @@
-margin = 10;
-barheight = 10;
-width = 450;
-textbar = 20;
-precision = 64;
-precision_step = 8;
-
 function sort_by(type) {
     return function(a, b) {
         return b[type] - a[type];
@@ -16,9 +9,16 @@ function r10(d) {
 }
 
 function make_graph(node, data, start, end) {
+    var margin = 10;
+    var barheight = 10;
+    var width = 450;
+    var textbar = 20;
+    var precision = 64;
+    var precision_step = 8;
+
     var len = data.length;
 
-    var svg = node
+    var svg = d3.select(node)
         .attr("width", width + 2 * margin)
         .attr("height", len * barheight + 2 * margin + textbar)
         .append("g").attr("transform", "translate(" + margin + "," + margin + ")");
@@ -76,7 +76,6 @@ function make_graph(node, data, start, end) {
 }
 
 function draw_results(node) {
-    window.width = node.attr("width") - 2 * margin;
     d3.json("results.json", function(err, data) {
         if (err) return console.error(err);
         precision = data.bit_width;
@@ -143,3 +142,7 @@ function draw_results(node) {
         }
     });
 }
+
+var ArrowChart = new Component("svg.arrow-chart", {
+    setup: function() { draw_results(this.elt); }
+});

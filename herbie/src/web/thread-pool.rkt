@@ -1,64 +1,35 @@
 #lang racket
 
-(require racket/place)
-(require "../common.rkt")
-(require "../formats/test.rkt")
-(require "../points.rkt")
-(require "../programs.rkt")
-(require "../alternative.rkt")
-(require "../sandbox.rkt")
-(require "make-graph.rkt")
-(require "../formats/datafile.rkt")
+(require racket/place profile)
+(require "../common.rkt" "../points.rkt" "../programs.rkt")
+(require "../sandbox.rkt" "make-graph.rkt" "../formats/test.rkt" "../formats/datafile.rkt")
 
 (provide get-test-results)
 
-(define (make-graph-if-valid result tname index rdir #:profile profile? #:debug debug? #:seed seed)
-  (when (not (directory-exists? rdir)) (make-directory rdir))
-
-  (set-seed! seed)
-  (write-file (build-path rdir "graph.html")
-              ((cond [(test-result? result)
-                      (λ args
-                        (define valid-js (apply make-interactive-js args))
-                        (apply make-graph (append args (list valid-js)))
-                        (apply make-plots args))]
-                     [(test-timeout? result) make-timeout]
-                     [(test-failure? result) make-traceback])
-               result rdir profile? debug?)))
-
 (define (graph-folder-path tname index)
-  (let* ([stripped-tname (string-replace tname #px"\\W+" "")]
-         [index-label (number->string index)])
-    (string-append index-label "-"
-                   (if (> (string-length stripped-tname) 50)
-                       (substring stripped-tname 0 50)
-                       stripped-tname))))
-
-(define (call-with-output-files names k)
-  (let loop ([names names] [ps '()])
-    (if (null? names)
-        (apply k (reverse ps))
-        (if (car names)
-            (call-with-output-file
-                (car names) #:exists 'replace
-                (λ (p) (loop (cdr names) (cons p ps))))
-            (loop (cdr names) (cons #f ps))))))
+  (format "~a-~a" index (string-prefix (string-replace tname #px"\\W+" "") 50)))
 
 (define (run-test index test #:seed seed #:profile profile? #:debug debug? #:dir dir)
   (cond
    [dir
-    (let* ([rdir (graph-folder-path (test-name test) index)]
-           [rdir* (build-path dir rdir)])
-      (when (not (directory-exists? rdir*))
-        (make-directory rdir*))
+    (define dirname
+      (format "~a-~a" index (string-prefix (string-replace (test-name test) #px"\\W+" "") 50)))
 
-      (define result
-        (call-with-output-files
-         (list (build-path rdir* "debug.txt") (and profile? (build-path rdir* "profile.txt")))
-         (λ (dp pp) (get-test-result test #:seed seed #:profile pp #:debug debug? #:debug-port dp #:debug-level (cons #t #t)))))
+    (define rdir  (build-path dir dirname))
+    (when (not (directory-exists? rdir)) (make-directory rdir))
 
-      (make-graph-if-valid result (test-name test) index rdir* #:profile profile? #:debug debug? #:seed seed)
-      (get-table-data result rdir))]
+    (define result
+      (call-with-output-files
+       (list (build-path rdir "debug.txt") (and profile? (build-path rdir "profile.txt")))
+       (λ (dp pp) (get-test-result test #:seed seed #:profile pp #:debug debug? #:debug-port dp #:debug-level (cons #t #t)))))
+
+    (set-seed! seed)
+    (for ([page (all-pages result)])
+      (call-with-output-file (build-path rdir page)
+        #:exists 'replace
+        (λ (out) (make-page page out result profile?))))
+
+    (get-table-data result dirname)]
    [else
     (define result (get-test-result test #:seed seed))
     (get-table-data result "")]))
@@ -93,20 +64,21 @@
              `(done ,id ,self ,result)))])
       (loop seed profile? debug? dir))))
 
-(define (print-test-result data)
-  (match-define (cons fpcore tr) data)
-  (match (table-row-status tr)
+(define (print-test-result i n data)
+  (eprintf "~a/~a\t" (~a i #:width 3 #:align 'right) n)
+  (match (table-row-status data)
     ["error"  
-     (eprintf "[   ERROR   ]\t~a\n" (table-row-name tr))]
+     (eprintf "[   ERROR   ]\t~a\n" (table-row-name data))]
     ["crash"  
-     (eprintf "[   CRASH   ]\t~a\n" (table-row-name tr))]
+     (eprintf "[   CRASH   ]\t~a\n" (table-row-name data))]
     ["timeout"
-     (eprintf "[  timeout  ]\t~a\n" (table-row-name tr))]
+     (eprintf "[  timeout  ]\t~a\n" (table-row-name data))]
     [_
-     (eprintf "[ ~ams]\t(~a→~a)\t~a\n" (~a (table-row-time tr) #:width 8)
-              (~r (table-row-start tr) #:min-width 2 #:precision 0)
-              (~r (table-row-result tr) #:min-width 2 #:precision 0)
-              (table-row-name tr))]))
+     (eprintf "[ ~as]   ~a→~a\t~a\n"
+              (~r (/ (table-row-time data) 1000) #:min-width 7 #:precision '(= 3))
+              (~r (table-row-start data) #:min-width 2 #:precision 0)
+              (~r (table-row-result data) #:min-width 2 #:precision 0)
+              (table-row-name data))]))
 
 (define (run-workers progs threads #:seed seed #:profile profile? #:debug debug? #:dir dir)
   (define config
@@ -150,8 +122,7 @@
 
         (define out* (cons (cons id tr) out))
 
-        (eprintf "~a/~a\t" (~a (length out*) #:width 3 #:align 'right) (length progs))
-        (print-test-result tr)
+        (print-test-result (length out*) (length progs) tr)
 
         (if (= (length out*) (length progs))
             out*
@@ -170,8 +141,7 @@
                              (length out) (if (= (length out) 1) "s" "")))])
     (for ([test progs] [i (in-naturals)])
       (define tr (run-test i test #:seed seed #:profile profile? #:debug debug? #:dir dir))
-      (eprintf "~a/~a\t" (~a (+ 1 i) #:width 3 #:align 'right) (length progs))
-      (print-test-result tr)
+      (print-test-result (+ 1 i) (length progs) tr)
       (set! out (cons (cons i tr) out))))
   out)
 
@@ -179,7 +149,7 @@
   (-> (listof test?) #:threads (or/c #f natural-number/c)
       #:seed (or/c pseudo-random-generator-vector? (integer-in 0 (sub1 (expt 2 31))))
       #:profile boolean? #:debug boolean? #:dir (or/c #f path-string?)
-      (listof (or/c #f (cons/c expr? table-row?))))
+      (listof (or/c #f table-row?)))
   (when (and threads (> threads (length progs)))
     (set! threads (length progs)))
 

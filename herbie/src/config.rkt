@@ -1,15 +1,12 @@
 #lang racket
-(require racket/runtime-path)
 (provide (all-defined-out))
-
-(define-runtime-path web-resource-path "web/")
 
 ;; Flag Stuff
 
 (define all-flags
   #hash([precision . (double fallback)]
         [setup . (simplify early-exit)]
-        [generate . (rr taylor simplify)]
+        [generate . (rr taylor simplify better-rr)]
         [reduce . (regimes avg-error binary-search branch-expressions)]
         [rules . (arithmetic polynomials fractions exponents trigonometry hyperbolic numerics complex special bools branches)]))
 
@@ -50,6 +47,9 @@
 ;; Number of iterations of the core loop for improving program accuracy
 (define *num-iterations* (make-parameter 4))
 
+;; The maximum number of consecutive skipped points for sampling valid points
+(define *max-skipped-points* (make-parameter 100))
+
 ;; The step size with which arbitrary-precision precision is increased
 ;; DANGEROUS TO CHANGE
 (define *precision-step* (make-parameter 256))
@@ -81,7 +81,7 @@
           (if (equal? out "") default out))
       default))
 
-(define *herbie-version* "1.2")
+(define *herbie-version* "1.3")
 
 (define *hostname* (run-command "hostname"))
 
@@ -90,3 +90,11 @@
 
 (define *herbie-branch*
   (git-command "rev-parse" "--abbrev-ref" "HEAD" #:default "release"))
+
+(define resetters '())
+
+(define (register-reset fn #:priority [priority 0])
+  (set! resetters (cons (cons priority fn) resetters)))
+
+(define (reset!)
+  (for ([fn-rec (sort resetters < #:key car)]) ((cdr fn-rec))))

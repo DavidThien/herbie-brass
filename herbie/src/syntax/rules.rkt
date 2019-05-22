@@ -5,9 +5,9 @@
 (require "../common.rkt")
 (require "syntax.rkt")
 (require "softposit.rkt")
+(require "../float.rkt")
 
-(provide (struct-out rule) *rules* *simplify-rules*
-         *fp-safe-simplify-rules* prune-rules!)
+(provide (struct-out rule) *rules* *simplify-rules* *fp-safe-simplify-rules*)
 
 (struct rule (name input output itypes) ; Input and output are patterns
         #:methods gen:custom-write
@@ -28,12 +28,13 @@
       [else #t]))
   (ops-in-expr (rule-output rule)))
 
-(define (prune-rules!)
-  (*rulesets* (for/list ([ruleset (*rulesets*)])
-                (cons (for/list ([rule (car ruleset)]
-                                 #:when (rule-ops-supported? rule))
-                        rule)
-                      (cdr ruleset)))))
+(register-reset
+ #:priority 10 ; Must be higher than priority for pruning operators
+ (λ ()
+   (*rulesets* 
+    (for/list ([ruleset (*rulesets*)])
+      (match-define (list rules groups types) ruleset)
+      (list (filter rule-ops-supported? rules) groups types)))))
 
 (define-syntax define-ruleset
   (syntax-rules ()
@@ -61,9 +62,12 @@
   [*.c-commutative     (*.c a b)               (*.c b a)])
 
 ; Posit conversions
-#;(define-ruleset insert/remove-p16 (arithmetic simplify posit)
-  #:type ([a posit16])
-  [insert-posit16 a (posit16->real (real->posit16 a))]
+(define-ruleset insert-p16 (arithmetic posit)
+  #:type ([a real])
+  [insert-posit16 a (posit16->real (real->posit16 a))])
+
+(define-ruleset remove-p16 (arithmetic simplify posit)
+  #:type ([a real])
   [remove-posit16 (posit16->real (real->posit16 a)) a])
 
 (define-ruleset id-p16 (arithmetic simplify posit)
@@ -73,7 +77,10 @@
   [-p16-rgt-identity-reduce    (-.p16 a (real->posit16 0.0))               a]
   [*p16-lft-identity-reduce    (*.p16 (real->posit16 1.0) a)               a]
   [*p16-rgt-identity-reduce    (*.p16 a (real->posit16 1.0))               a]
-  [/p16-rgt-identity-reduce    (/.p16 a (real->posit16 1.0))               a]
+  [/p16-rgt-identity-reduce    (/.p16 a (real->posit16 1.0))               a])
+
+(define-ruleset unid-p16 (arithmetic posit)
+  #:type ([a posit16])
   [+p16-lft-identity-expand    a               (+.p16 (real->posit16 0.0) a)]
   [+p16-rgt-identity-expand    a               (+.p16 a (real->posit16 0.0))]
   [-p16-rgt-identity-expand    a               (-.p16 a (real->posit16 0.0))]
@@ -85,26 +92,26 @@
 
 ;; TODO: We only cast back to posit after quire operations because herbie can't handle
 ;; non-double output right now (similar situtation for posits)
-(define-ruleset insert-q16 (arithmetic simplify posit)
+(define-ruleset q16-arithmetic (arithmetic posit)
   #:type ([a posit16] [b posit16] [c posit16] [q quire16])
   [introduce-quire      a               (quire16->posit16 (posit16->quire16 a))]
   [insert-quire-add     (+.p16 (quire16->posit16 q) a)
                         (quire16->posit16 (quire16-mul-add q a (real->posit16 1.0)))]
-  [insert-quire-sub     (+.p16 (quire16->posit16 q) a)
+  [insert-quire-sub     (-.p16 (quire16->posit16 q) a)
                         (quire16->posit16 (quire16-mul-sub q a (real->posit16 1.0)))]
   [insert-quire-fdp-add (+.p16 (quire16->posit16 q) (*.p16 a b))
                         (quire16->posit16 (quire16-mul-add q a b))]
   [insert-quire-fdp-sub (-.p16 (quire16->posit16 q) (*.p16 a b))
                         (quire16->posit16 (quire16-mul-sub q a b))])
 
-(define-ruleset p16-test-rules (arithmetic simplify posit)
+(define-ruleset p16-test-rules (arithmetic posit)
   #:type ([a posit16] [b posit16] [c posit16] [d posit16])
   [p16-flip--            (-.p16 a b)                            (/.p16 (-.p16 (*.p16 a a) (*.p16 b b)) (+.p16 a b))]
   [p16-*-un-lft-identity a                                      (*.p16 (real->posit16 1.0) a)]
   [p16-distribute-lft-out     (+.p16 (*.p16 a b) (*.p16 a c))   (*.p16 a (+.p16 b c))]
   [p16-times-frac  (/.p16 (*.p16 a b) (*.p16 c d))              (*.p16 (/.p16 a c) (/.p16 b d))]
   [sqrt-sqrd.p16   (*.p16 (sqrt.p16 a) (sqrt.p16 a))             a]
-  [remove-negate.p16 (+.p16 a (-.p16 (real->posit16 1.0) x))    (real->posit16 1.0)])
+  [remove-negate.p16 (+.p16 a (-.p16 (real->posit16 1.0) a))    (real->posit16 1.0)])
 
 
 ; Associativity
@@ -171,6 +178,11 @@
   [sub-neg        (-.p16 a b)                   (+.p16 a (neg.p16 b))]
   [unsub-neg      (+.p16 a (neg.p16 b))         (-.p16 a b)])
 
+; Counting
+(define-ruleset counting (arithmetic simplify)
+  #:type ([x real])
+  [count-2   (+ x x)   (* 2 x)])
+
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)
   #:type ([a real] [b real] [c real])
@@ -220,9 +232,14 @@
 ; Difference of squares
 (define-ruleset difference-of-squares-canonicalize (polynomials simplify)
   #:type ([a real] [b real])
+  [swap-sqr              (* (* a b) (* a b))   (* (* a a) (* b b))]
+  [unswap-sqr            (* (* a a) (* b b))   (* (* a b) (* a b))]
   [difference-of-squares (- (* a a) (* b b))   (* (+ a b) (- a b))]
   [difference-of-sqr-1   (- (* a a) 1)         (* (+ a 1) (- a 1))]
-  [difference-of-sqr--1  (+ (* a a) -1)        (* (+ a 1) (- a 1))])
+  [difference-of-sqr--1  (+ (* a a) -1)        (* (+ a 1) (- a 1))]
+  [sqr-pow               (pow a b)             (* (pow a (/ b 2)) (pow a (/ b 2)))]
+  [pow-sqr               (* (pow a b) (pow a b)) (pow a (* 2 b))]
+  )
 
 (define-ruleset difference-of-squares-canonicalize.p16 (polynomials simplify posit)
   #:type ([a posit16] [b posit16])
@@ -252,16 +269,19 @@
   [mul0              (* 0 a)               0]
   [mul0              (* a 0)               0])
 
-(define-ruleset id-reduce-posit16 (arithmetic simplify fp-safe-nan)
+(define-ruleset exact-posit16 (arithmetic simplify posit fp-safe-nan)
   #:type ([a posit16])
-  [+-inverses        (- a a)                                 (real->posit16 0.0)]
-  [*-inverses        (/ a a)                                 (real->posit16 1.0)]
-  [div0              (/ (real->posit16 0.0) a)               (real->posit16 0.0)]
-  [mul0              (* (real->posit16 0.0) a)               (real->posit16 0.0)]
-  [mul0              (* a (real->posit16 0.0))               (real->posit16 0.0)]
-  [remove-double-div (/ (real->posit16 1.0) (/ (real->posit16 1.0) a))         a]
-  [rgt-mult-inverse  (* a (/ (real->posit16 1.0) a))         (real->posit16 1.0)]
-  [lft-mult-inverse  (* (/ (real->posit16 1.0) a) a)         (real->posit16 1.0)])
+  [+-inverses        (-.p16 a a)                                 (real->posit16 0.0)]
+  [*-inverses        (/.p16 a a)                                 (real->posit16 1.0)]
+  [div0              (/.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
+  [mul0              (*.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
+  [mul0              (*.p16 a (real->posit16 0.0))               (real->posit16 0.0)])
+
+(define-ruleset id-reduce-posit16 (arithmetic simplify posit)
+  #:type ([a posit16])
+  [remove-double-div (/.p16 (real->posit16 1.0) (/.p16 (real->posit16 1.0) a))         a]
+  [rgt-mult-inverse  (*.p16 a (/.p16 (real->posit16 1.0) a))         (real->posit16 1.0)]
+  [lft-mult-inverse  (*.p16 (/.p16 (real->posit16 1.0) a) a)         (real->posit16 1.0)])
 
 (define-ruleset id-reduce-fp-safe (arithmetic simplify fp-safe)
   #:type ([a real])
@@ -342,6 +362,8 @@
   #:type ([x real] [y real])
   [sqrt-prod         (sqrt (* x y))         (* (sqrt x) (sqrt y))]
   [sqrt-div          (sqrt (/ x y))         (/ (sqrt x) (sqrt y))]
+  [sqrt-pow1         (sqrt (pow x y))       (pow x (/ y 2))]
+  [sqrt-pow2         (pow (sqrt x) y)       (pow x (/ y 2))]
   [sqrt-unprod       (* (sqrt x) (sqrt y))  (sqrt (* x y))]
   [sqrt-undiv        (/ (sqrt x) (sqrt y))  (sqrt (/ x y))]
   [add-sqr-sqrt      x                      (* (sqrt x) (sqrt x))])
@@ -385,8 +407,10 @@
 
 (define-ruleset exp-reduce-fp-safe (exponents simplify fp-safe)
   [exp-0        (exp 0)              1]
+  [exp-1-e      (exp 1)              E])
+
+(define-ruleset exp-expand-fp-safe (exponents fp-safe)
   [1-exp        1                    (exp 0)]
-  [exp-1-e      (exp 1)              E]
   [e-exp-1      E                    (exp 1)])
 
 
@@ -576,17 +600,29 @@
   [sqr-sin     (* (sin x) (sin x))       (- 1 (* (cos x) (cos x)))]
   [sqr-cos     (* (cos x) (cos x))       (- 1 (* (sin x) (sin x)))])
 
-(define-ruleset atrig-expand (trigonometry)
+(define-ruleset trig-inverses (trigonometry)
   #:type ([x real])
   [sin-asin    (sin (asin x))         x]
+  [cos-acos    (cos (acos x))         x]
+  [tan-atan    (tan (atan x))         x]
+  [atan-tan    (atan (tan x))         (remainder x PI)]
+  [asin-sin    (asin (sin x))         (- (fabs (remainder (+ x (/ PI 2)) (* 2 PI))) (/ PI 2))]
+  [acos-cos    (acos (cos x))         (fabs (remainder x (* 2 PI)))])
+
+(define-ruleset trig-inverses-simplified (trigonometry)
+  #:type ([x real])
+  [atan-tan-s  (atan (tan x))         x]
+  [asin-sin-s  (asin (sin x))         x]
+  [acos-cos-s  (acos (cos x))         x])
+
+(define-ruleset atrig-expand (trigonometry)
+  #:type ([x real])
   [cos-asin    (cos (asin x))         (sqrt (- 1 (* x x)))]
   [tan-asin    (tan (asin x))         (/ x (sqrt (- 1 (* x x))))]
   [sin-acos    (sin (acos x))         (sqrt (- 1 (* x x)))]
-  [cos-acos    (cos (acos x))         x]
   [tan-acos    (tan (acos x))         (/ (sqrt (- 1 (* x x))) x)]
   [sin-atan    (sin (atan x))         (/ x (sqrt (+ 1 (* x x))))]
   [cos-atan    (cos (atan x))         (/ 1 (sqrt (+ 1 (* x x))))]
-  [tan-atan    (tan (atan x))         x]
   [asin-acos   (asin x)               (- (/ PI 2) (acos x))]
   [acos-asin   (acos x)               (- (/ PI 2) (asin x))]
   [asin-neg    (asin (- x))           (- (asin x))]
@@ -768,7 +804,7 @@
 
 (module+ test
   (require rackunit math/bigfloat)
-  (require "../programs.rkt" "../float.rkt")
+  (require "../programs.rkt")
   (define num-test-points 2000)
 
   (define *conditions*
@@ -779,25 +815,29 @@
       [sinh-acosh . (> (fabs x) 1)]
       [sinh-atanh . (< (fabs x) 1)]
       [cosh-atanh . (< (fabs x) 1)]
-      [tanh-acosh . (> (fabs x) 1)]))
+      [tanh-acosh . (> (fabs x) 1)]
+      [asin-sin   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
+      [acos-cos   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
+      [atan-tan   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
+      [asin-sin-s . (<= (fabs x) (/ PI 2))]
+      [acos-cos-s . (<= 1e-10 x PI)] ; Lower bound avoids false positive
+      [atan-tan-s . (<= (fabs x) (/ PI 2))]))
 
   (define *skip-tests*
     (append
       ;; All these tests fail due to underflow to 0 and are irrelevant
+      ;; Posit tests may have unnaceptable error due to lack of
+      ;; representable numbers
       '(exp-prod pow-unpow pow-pow pow-exp
         asinh-2 tanh-1/2* sinh-cosh
         hang-p0-tan hang-m0-tan erf-odd erf-erfc erfc-erf
-        p16-flip-- insert-quire-sub)))
+        p16-flip-- sqrt-sqrd.p16)))
 
   (for* ([test-ruleset (*rulesets*)]
          [test-rule (first test-ruleset)]
          #:unless (set-member? *skip-tests* (rule-name test-rule)))
     (parameterize ([bf-precision 2000])
-    (with-check-info (['rule test-rule])
-      (with-handlers ([exn:fail? (λ (e)
-                                   ((error-display-handler)
-                                    (exn-message e) e)
-                                   (fail (exn-message e)))])
+      (test-case (~a (rule-name test-rule))
         (match-define (rule name p1 p2 _) test-rule)
         ;; Not using the normal prepare-points machinery for speed.
         (define fv (free-variables p1))
@@ -820,8 +860,8 @@
               ['quire32 (random-quire32)])))
         (define point-sequence (sequence-filter valid-point? (in-producer make-point)))
         (define points (for/list ([n (in-range num-test-points)] [pt point-sequence]) pt))
-        (define prog1 (eval-prog `(λ ,fv ,p1) 'bf))
-        (define prog2 (eval-prog `(λ ,fv ,p2) 'bf))
+        (define prog1 (compose ->flonum (eval-prog `(λ ,fv ,p1) 'bf)))
+        (define prog2 (compose ->flonum (eval-prog `(λ ,fv ,p2) 'bf)))
         (with-handlers ([exn:fail:contract? (λ (e) (eprintf "~a: ~a\n" name (exn-message e)))])
           (define ex1 (map prog1 points))
           (define ex2 (map prog2 points))
@@ -840,7 +880,7 @@
                             ['max-point (map cons fv (second max-error))]
                             ['max-input (third max-error)]
                             ['max-output (fourth max-error)])
-                           (check-pred (curryr <= 1) score))))))))
+                           (check-pred (curryr <= 1) score)))))))
 
 (module+ test
   (require rackunit math/bigfloat)
@@ -849,30 +889,28 @@
   (for* ([test-ruleset (*rulesets*)]
          [test-rule (first test-ruleset)]
          #:when (set-member? (*fp-safe-simplify-rules*) test-rule))
-    (with-check-info (['rule test-rule])
-      (with-handlers ([exn:fail? (λ (e) (fail (exn-message e)))])
-        (define num-test-points 2000)
-        (match-define (rule name p1 p2 _) test-rule)
-        (define fv (free-variables p1))
-        (define (make-point)
-          (for/list ([v fv])
-            (match (dict-ref (rule-itypes test-rule) v)
-              ['real (sample-double)]
-              ['bool (if (< (random) .5) false true)]
-              ['complex (make-rectangular (sample-double) (sample-double))])))
-        (define point-sequence (in-producer make-point))
-        (define points (for/list ([n (in-range num-test-points)] [pt point-sequence]) pt))
-        (define prog1 (eval-prog `(λ ,fv ,p1) 'fl))
-        (define prog2 (eval-prog `(λ ,fv, p2) 'fl))
-        (with-handlers ([exn:fail:contract? (λ (e) (eprintf "~a: ~a\n" name (exn-message e)))])
-          (define ex1 (map prog1 points))
-          (define ex2 (map prog2 points))
-          (define err
-            (for/first ([pt points] [v1 ex1] [v2 ex2]
-                        #:unless (equal? v1 v2))
-              (list pt v1 v2)))
-          (when err
-            (match-define (list pt v1 v2) err)
-            (with-check-info (['point (map list fv pt)] ['input-value v1] ['output-value v2])
-                             (check-false err))))))))
-;
+    (test-case (~a (rule-name test-rule))
+      (define num-test-points 2000)
+      (match-define (rule name p1 p2 _) test-rule)
+      (define fv (free-variables p1))
+      (define (make-point)
+        (for/list ([v fv])
+          (match (dict-ref (rule-itypes test-rule) v)
+            ['real (sample-double)]
+            ['bool (if (< (random) .5) false true)]
+            ['complex (make-rectangular (sample-double) (sample-double))])))
+      (define point-sequence (in-producer make-point))
+      (define points (for/list ([n (in-range num-test-points)] [pt point-sequence]) pt))
+      (define prog1 (eval-prog `(λ ,fv ,p1) 'fl))
+      (define prog2 (eval-prog `(λ ,fv, p2) 'fl))
+      (with-handlers ([exn:fail:contract? (λ (e) (eprintf "~a: ~a\n" name (exn-message e)))])
+        (define ex1 (map prog1 points))
+        (define ex2 (map prog2 points))
+        (define err
+          (for/first ([pt points] [v1 ex1] [v2 ex2]
+                      #:unless (equal? v1 v2))
+            (list pt v1 v2)))
+        (when err
+          (match-define (list pt v1 v2) err)
+          (with-check-info (['point (map list fv pt)] ['input-value v1] ['output-value v2])
+                           (check-false err)))))))

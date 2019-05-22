@@ -1,14 +1,9 @@
 #lang racket
 
-(require "../common.rkt")
-(require "../programs.rkt")
-(require "../syntax/rules.rkt")
-(require "egraph.rkt")
-(require "ematch.rkt")
-(require "enode.rkt")
-
-(provide simplify-expr *max-egraph-iters*)
-
+(require "../common.rkt" "../programs.rkt" "../float.rkt" "../timeline.rkt")
+(require "../syntax/rules.rkt" "../syntax/types.rkt")
+(require "enode.rkt" "egraph.rkt" "ematch.rkt")
+(provide simplify-expr simplify-batch)
 (module+ test (require rackunit))
 
 ;;################################################################################;;
@@ -18,186 +13,118 @@
 ;;# partially, then extracting the simplest expression from it.
 ;;#
 ;;# Simplify attempts to make only one strong guarantee:
-;;# that the input is mathematically equivilent to the output; that is, for any
+;;# that the input is mathematically equivalent to the output; that is, for any
 ;;# exact x, evalutating the input on x will yield the same expression as evaluating
 ;;# the output on x.
 ;;#
 ;;################################################################################;;
 
-;; Cap the number of iterations to try at this.
-(define *max-egraph-iters* (make-parameter 6))
-(define *node-limit* (make-parameter 500))
+;; Cap the maximum size of an egraph
+(define *node-limit* (make-parameter 2000))
 
 (define/contract (simplify-expr expr #:rules rls)
   (-> expr? #:rules (listof rule?) expr?)
-  (debug #:from 'simplify #:tag 'enter (format "Simplifying ~a" expr))
-  (if (has-nan? expr) +nan.0
-      (let* ([iters (min (*max-egraph-iters*) (iters-needed expr))]
-	     [eg (mk-egraph expr)])
-	(iterate-egraph! eg iters #:rules rls)
-	(define out (extract-smallest-best-effort eg))
-        (debug #:from 'simplify #:tag 'exit (format "Simplified to ~a" out))
-        out)))
+  (first (simplify-batch (list expr) #:rules rls)))
 
-(define (has-nan? expr)
-  (or (and (number? expr) (nan? expr))
-      (and (list? expr)
-	   (ormap has-nan? (cdr expr)))))
+(define/contract (simplify-batch exprs #:rules rls)
+  (-> (listof expr?) #:rules (listof rule?) (listof expr?))
+  (debug #:from 'simplify (format "Simplifying:\n  ~a" (string-join (map ~a exprs) "\n  ")))
 
-;; Returns the worst-case iterations needed to simplify this expression
-(define (iters-needed expr)
-  (if (not (list? expr)) 0
-      (let ([sub-iters-needed (apply max (map iters-needed (cdr expr)))])
-	(if (let ([op (car expr)]) (or (eq? op '*) (eq? op '+) (eq? op '-) (eq? op '/)))
-	    (+ 2 sub-iters-needed)
-	    (+ 1 sub-iters-needed)))))
+  (define eg (mk-egraph))
+  (define ens (for/list ([expr exprs]) (mk-enode-rec! eg expr)))
 
-(define (iterate-egraph! eg iters #:rules [rls (*simplify-rules*)])
-  (let ([start-cnt (egraph-cnt eg)])
-    (debug #:from 'simplify #:depth 2 (format "iters left: ~a (~a enodes)" iters start-cnt))
+  (timeline-push! 'egraph 0 (egraph-cnt eg))
+  (iterate-egraph! eg #:rules rls)
+
+  (define out (apply extract-smallest eg ens))
+  (debug #:from 'simplify (format "Simplified to:\n  ~a" (string-join (map ~a out) "\n  ")))
+  out)
+
+(define (iterate-egraph! eg #:rules [rls (*simplify-rules*)])
+  (let loop ([iter 1])
+    (define start-cnt (egraph-cnt eg))
+    (debug #:from 'simplify #:depth 2 (format "iteration ~a: (~a enodes)" iter start-cnt))
     (one-iter eg rls)
-    (when (and (> (egraph-cnt eg) start-cnt)
-	       (> iters 1)
-	       (< (egraph-cnt eg) (*node-limit*)))
-      (iterate-egraph! eg (sub1 iters) #:rules rls))))
+    (timeline-push! 'egraph iter (egraph-cnt eg))
+    (when (< start-cnt (egraph-cnt eg) (*node-limit*))
+      (loop (+ iter 1)))))
+
+(define (rule-applicable? rl en)
+  (or (not (variable? (rule-input rl)))
+      (equal? (dict-ref (rule-itypes rl) (rule-input rl)) (enode-type en))))
+
+;; Tries to match the rules against the given enodes, and returns a
+;; list of matches found. Matches are of the form:
+;; 
+;; (rule enode . bindings)
+;;
+;; where bindings is a list of different matches between the rule and
+;; the enode.
+
+(define (find-matches ens rls)
+  (reap [sow]
+        (for* ([rl rls] [en ens]
+               #:when (rule-applicable? rl en)
+               #:unless (rule-applied? en rl))
+          (define bindings (match-e (rule-input rl) en))
+          (unless (null? bindings)
+            (sow (list* rl en bindings))))))
+
+(define (apply-match match eg)
+  (match-define (list rl en bindings ...) match)
+
+  ;; These next two lines are here because an earlier match
+  ;; application may have pruned the tree, invalidating the this
+  ;; one. Luckily, a pruned enode will still point to it's old
+  ;; leader, so we just get the leader, and then double check the
+  ;; bindings to make sure our match hasn't changed.
+  
+  (define en* (pack-leader en))
+  (define bindings-set (apply set bindings))
+  (define bindings* (apply set (match-e (rule-input rl) en*)))
+  (define valid-bindings (set-intersect bindings-set bindings*))
+
+  (for ([binding valid-bindings])
+    (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
+  ;; Prune the enode if we can
+  (unless (null? valid-bindings)
+    ;; If one of the variations of the enode is a single variable or
+    ;; constant, reduce to that.
+    (reduce-to-single! eg en))
+  ;; Mark this node as having this rule applied so that we don't try
+  ;; to apply it again.
+  (when (subset? bindings-set valid-bindings) (rule-applied! en rl)))
 
 ;; Iterates the egraph by applying each of the given rules in parallel
 ;; to the egraph nodes.
 (define (one-iter eg rls)
-  ;; Tries to match the rules against the given enodes, and returns a
-  ;; list of matches found. Matches are of the form:
-  ;; 
-  ;; (rule enode . bindings)
-  ;;
-  ;; where bindings is a list of different matches between the rule
-  ;; and the enode.
-  (define (find-matches ens)
-    (filter (negate null?)
-	    (for*/list ([rl rls]
-			[en ens]
-                        #:when (or (not (variable? (rule-input rl)))
-                                   (equal? (dict-ref (rule-itypes rl) (rule-input rl)) (enode-type en))))
-	      (if (rule-applied? en rl) '()
-		  (let ([bindings (match-e (rule-input rl) en)])
-		    (if (null? bindings) '()
-			(list* rl en bindings)))))))
-  (define (apply-match match)
-    (match-define (list rl en bindings ...) match)
-
-    ;; These next two lines are here because an earlier match
-    ;; application may have pruned the tree, invalidating the this
-    ;; one. Luckily, a pruned enode will still point to it's old
-    ;; leader, so we just get the leader, and then double check the
-    ;; bindings to make sure our match hasn't changed.
-    
-    (define en* (pack-leader en))
-    (define bindings-set (apply set bindings))
-    (define bindings* (apply set (match-e (rule-input rl) en*)))
-    (define valid-bindings (set-intersect bindings-set bindings*))
-
-    (for ([binding valid-bindings])
-      (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
-    ;; Prune the enode if we can
-    (unless (null? valid-bindings) (try-prune-enode en))
-    ;; Mark this node as having this rule applied so that we don't try
-    ;; to apply it again.
-    (when (subset? valid-bindings bindings-set) (rule-applied! en rl)))
-  (define (try-prune-enode en)
-    ;; If one of the variations of the enode is a single variable or
-    ;; constant, reduce to that.
-    (reduce-to-single! eg en)
-    ;; If one of the variations of the enode chains back to itself,
-    ;; prune it away. Loops in the egraph coorespond to identity
-    ;; functions.
-    #;(elim-enode-loops! eg en))
-  (for ([m (find-matches (egraph-leaders eg))])
-    (apply-match m))
-  (map-enodes (curry set-precompute! eg) eg))
-
-(define-syntax-rule (matches? expr pattern)
-  (match expr
-    [pattern #t]
-    [_ #f]))
-
-(define (exact-value? type val)
-  (match type
-    ['real (exact? val)]
-    ['complex (exact? val)]
-    ['boolean true]))
-
-(define/match (val-of-type type val)
-  [('real    (? real?))    true]
-  [('complex (? complex?)) true]
-  [('boolean (? boolean?)) true]
-  [(_ _) false])
-
-(define (val-to-type type val)
-  (match type
-    ['real val]
-    ['complex `(complex ,(real-part val) ,(imag-part val))]
-    ['boolean (if val 'TRUE 'FALSE)]))
+  (for ([m (find-matches (egraph-leaders eg) rls)])
+    (apply-match m eg))
+  (for-each (curry set-precompute! eg) (egraph-leaders eg)))
 
 (define (set-precompute! eg en)
   (define type (enode-type en))
-  (for ([var (enode-vars en)])
-    (when (list? var)
-      (let ([constexpr
-	     (cons (car var)
-		   (map (compose (curry setfindf constant?) enode-vars)
-			(cdr var)))])
-	(when (and (not (matches? constexpr `(/ ,a 0)))
-		   (not (matches? constexpr `(log 0)))
-		   (not (matches? constexpr `(/ 0)))
-		   (andmap real? (cdr constexpr)))
-	  (let ([res (eval-const-expr constexpr)])
-	    (when (and (val-of-type type res) (exact-value? type res))
-	      (reduce-to-new! eg en (val-to-type type res)))))))))
+  (define simplified? false)
+  (for ([var (enode-vars en)] #:when (list? var))
+    (define constexpr
+      (cons (car var)
+            (map (compose (curry setfindf constant?) enode-vars) (cdr var))))
+    (when (andmap identity constexpr)
+      (with-handlers ([exn:fail:contract:divide-by-zero? void])
+        (define res (eval-const-expr constexpr))
+        (when (and ((value-of type) res) (exact-value? type res))
+          (merge-egraph-nodes! eg en (mk-enode-rec! eg (val-to-type type res)))
+          (set! simplified? true)))))
+  (when simplified? (reduce-to-single! eg en)))
 
-(define (hash-set*+ hash assocs)
-  (for/fold ([h hash]) ([assoc assocs])
-    (hash-set h (car assoc) (cdr assoc))))
-
-(define (extract-smallest-best-effort eg)
-  (define (resolve en ens->exprs)
-    (let ([possible-resolutions
-	   (filter identity
-	     (for/list ([var (enode-vars en)])
-	       (if (not (list? var)) var
-		   (let ([expr (cons (car var)
-				     (for/list ([en (cdr var)])
-				       (hash-ref ens->exprs (pack-leader en) #f)))])
-		     (if (andmap identity (cdr expr))
-			 expr
-			 #f)))))])
-      (if (null? possible-resolutions) #f
-	  (argmin expression-cost possible-resolutions))))
-  (define (pass ens ens->exprs)
-    (let-values ([(pairs left)
-		  (partition pair?
-			     (for/list ([en ens])
-			       (let ([resolution (resolve en ens->exprs)])
-				 (if resolution
-				     (cons en resolution)
-				     en))))])
-      (list (hash-set*+ ens->exprs pairs)
-	    left)))
-  (let loop ([todo-ens (egraph-leaders eg)]
-	     [ens->exprs (hash)])
-    (match-let* ([`(,ens->exprs* ,todo-ens*)
-		  (pass todo-ens ens->exprs)]
-		 [top-expr (hash-ref ens->exprs* (pack-leader (egraph-top eg)) #f)])
-      (cond [top-expr top-expr]
-            [((length todo-ens*) . = . (length todo-ens))
-             (error "failed to extract: infinite loop.")]
-            [#t (loop todo-ens* ens->exprs*)]))))
-
-(define (extract-smallest eg)
+(define (extract-smallest eg . ens)
   ;; The work list maps enodes to a pair (cost . expr) of that node's
   ;; cheapest representation and its cost. If the cost is #f, the expr
   ;; is also #f, and in this case no expression is yet known for that
   ;; enode.
   (define work-list (make-hash))
-  (hash-set! work-list (pack-leader (egraph-top eg)) (cons #f #f))
+  (for ([en ens])
+    (hash-set! work-list (pack-leader en) (cons #f #f)))
 
   ;; Extracting the smallest expression means iterating, until
   ;; fixedpoint, either discovering new relevant expressions or
@@ -241,7 +168,8 @@
            (set! changed? #t))]))
     (if changed?
         (loop (+ iter 1))
-        (cdr (hash-ref work-list (pack-leader (egraph-top eg)))))))
+        (for/list ([en ens])
+          (cdr (hash-ref work-list (pack-leader en)))))))
 
 (module+ test
   (define test-exprs
@@ -264,6 +192,10 @@
   (for ([(original target) test-exprs])
     (with-check-info (['original original])
        (check-equal? (simplify-expr original #:rules (*simplify-rules*)) target)))
+
+  (check set-member?
+         '((* x 6) (* 6 x))
+         (simplify-expr '(+ (+ (+ (+ (+ x x) x) x) x) x) #:rules (*simplify-rules*)))
 
   (define no-crash-exprs
     '((exp (/ (/ (* (* c a) 4) (- (- b) (sqrt (- (* b b) (* 4 (* a c)))))) (* 2 a)))))

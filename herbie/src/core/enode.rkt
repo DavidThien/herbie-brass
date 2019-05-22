@@ -13,6 +13,7 @@
 	 enode-subexpr?
          pack-filter! for-pack! pack-removef!
 	 set-enode-expr! update-vars!
+         dedup-children!
          )
 
 (provide (all-defined-out))
@@ -142,7 +143,7 @@
     (let ([filtered-children
            (filter
             identity
-            (for/list ([child (enode-children en)])
+            (for/list ([child (in-list (enode-children en))])
               (let ([child* (filter-loop! child)])
                 (or child*
                     (begin (set-enode-parent! child en) #f)))))])
@@ -195,7 +196,10 @@
                                   (map enode-cvars (enode-children en))))
       en)))
 
-;; Updates the expressions in the pack, using s specified updater.
+(define (dedup-children! en)
+  (set-enode-children! en (remove-duplicates (enode-children en) #:key enode-expr)))
+
+;; Updates the expressions in the pack, using a specified updater.
 (define (update-vars! en updater)
   (for-pack! (λ (inner-en)
                (set-enode-expr! inner-en (updater (enode-expr inner-en))))
@@ -206,7 +210,7 @@
   (let ([expr (enode-expr en)])
     (assert (or (number? expr) (symbol? expr)
 		(and (list? expr) (symbol? (car expr))
-		     (ormap enode? (cdr expr)))) #:loc location))
+		     (andmap enode? (cdr expr)))) #:loc location))
   ;; Checks that the depth is positive.
   (assert (positive? (enode-depth en)) #:loc location))
 

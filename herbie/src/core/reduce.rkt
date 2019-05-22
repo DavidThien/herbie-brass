@@ -38,9 +38,7 @@
     [`(lambda ,vars ,body)
      `(λ ,vars ,(simplify* body))]
     [(? (compose null? free-variables) `(,op ,args ...))
-     (let ([value
-            (with-handlers ([(const #t) (const #f)])
-              (common-eval expr))])
+     (let ([value (with-handlers ([(const #t) (const #f)]) (eval-const-expr expr))])
        (if (and (number? value) (real? value) (exact? value))
            value
            (simplify-node `(,op ,@(map simplify* args)))))]
@@ -100,8 +98,6 @@
                (list* (car term) (simplify-node (list* '/ (cadr term) args)) (cons label (cddr term)))))
            `((1 ,expr)))]
 
-      [`(sqr ,arg)
-       (recurse `(* ,arg ,arg) #:label expr)]
       [`(pow ,arg ,(? integer? n))
        (cond
         [(positive? n)

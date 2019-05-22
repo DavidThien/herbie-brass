@@ -13,19 +13,19 @@
   (define base-result (get-test-result base-test))
   (if (test-result? base-result)
     (printf "Base regime error improvement: ~a → ~a\n"
-            (errors-score (test-result-start-error base-result))
-            (errors-score (test-result-end-error base-result)))
+            (errors-score (test-success-start-error base-result))
+            (errors-score (test-success-end-error base-result)))
     (printf "Base regime test timed out or failed\n"))
-  (define base-result-prog (alt-program (test-result-end-alt base-result)))
+  (define base-result-prog (alt-program (test-success-end-alt base-result)))
 
   (define expanded-test (struct-copy test base-test
                                      [precondition 'TRUE]
                                      [output (caddr base-result-prog)]))
   (define expanded-result (get-test-result expanded-test))
   (if (test-result? expanded-result)
-    (let* ([start-err (errors-score (test-result-start-error expanded-result))]
-           [end-err (errors-score (test-result-end-error expanded-result))]
-           [target-err (errors-score (test-result-target-error expanded-result))]
+    (let* ([start-err (errors-score (test-success-start-error expanded-result))]
+           [end-err (errors-score (test-success-end-error expanded-result))]
+           [target-err (errors-score (test-success-target-error expanded-result))]
            [err-diff (- target-err end-err)])
       (printf "Expanded regime error improvement: ~a → ~a\n"
                start-err end-err)

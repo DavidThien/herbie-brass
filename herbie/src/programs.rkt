@@ -1,13 +1,14 @@
 #lang racket
 
 (require math/bigfloat math/flonum)
-(require "common.rkt" "syntax/syntax.rkt" "errors.rkt" "bigcomplex.rkt" "type-check.rkt"
-         "syntax/softposit.rkt")
+(require "common.rkt" "syntax/types.rkt" "syntax/syntax.rkt" "errors.rkt" "bigcomplex.rkt" "type-check.rkt"
+         "biginterval.rkt" "syntax/softposit.rkt")
 
 (module+ test (require rackunit))
 
 (provide (all-from-out "syntax/syntax.rkt")
          program-body program-variables ->flonum ->bf
+         expr-supports?
          location-hash
          location? expr?
          location-do location-get
@@ -35,9 +36,7 @@
 ;; Converting constants
 
 (define/contract (->flonum x)
-  (-> any/c (or/c flonum? complex? boolean?
-                  posit8? posit16? posit32?
-                  quire8? quire16? quire32?))
+  (-> any/c value?)
   (define convert
     (if (flag-set? 'precision 'double)
         real->double-flonum
@@ -53,18 +52,9 @@
    [(big-posit8? x) (double->posit8 (bigfloat->flonum (big-posit8-v x)))]
    [(big-posit16? x) (double->posit16 (bigfloat->flonum (big-posit16-v x)))]
    [(big-posit32? x) (double->posit32 (bigfloat->flonum (big-posit32-v x)))]
-   [(big-quire8? x) (quire8-fdp-add ((create-quire8)
-                                   (double->posit8
-                                     (bigfloat->flonum (big-quire8-v x)))
-                                   (double->posit8 1.0)))]
-   [(big-quire16? x) (quire16-fdp-add ((create-quire16)
-                                   (double->posit16
-                                     (bigfloat->flonum (big-quire16-v x)))
-                                   (double->posit16 1.0)))]
-   [(big-quire32? x) (quire32-fdp-add ((create-quire32)
-                                   (double->posit32
-                                     (bigfloat->flonum (big-quire32-v x)))
-                                   (double->posit32 1.0)))]
+   [(big-quire8? x) (double->quire8 (bigfloat->flonum (big-quire8-v x)))]
+   [(big-quire16? x) (double->quire16 (bigfloat->flonum (big-quire16-v x)))]
+   [(big-quire32? x) (double->quire32 (bigfloat->flonum (big-quire32-v x)))]
    [(and (symbol? x) (constant? x))
     (->flonum ((constant-info x 'fl)))]
    [else x]))
@@ -118,7 +108,6 @@
     [`(,op ,args ...)
      (remove-duplicates (append-map free-variables args))]))
 
-
 (define/contract (location-do loc prog f)
   (-> location? expr? (-> expr? expr?) expr?)
   (cond
@@ -139,25 +128,21 @@
     (location-do loc prog return)))
 
 (define (eval-prog prog mode)
-  (define real->precision
-    (match mode
-      ['bf ->bf]
-      ['fl ->flonum]
-      ['nonffi (λ (x) (if (symbol? x) (->flonum x) x))])) ; Keep exact numbers exact
-  (define precision->real
-    (match mode ['bf ->flonum] ['fl ->flonum] ['nonffi identity]))
+  (define real->precision (match mode ['bf ->bf] ['fl ->flonum] ['ival mk-ival] ['nonffi identity])) ; Keep exact numbers exact
+  (define precision->real (match mode ['bf identity] ['fl ->flonum] ['ival identity] ['nonffi identity]))
 
   (define body*
     (let inductor ([prog (program-body prog)])
       (match prog
-        [(? constant?) (real->precision prog)]
+        [(? value?) (real->precision prog)]
+        [(? constant?) ((constant-info prog mode))]
         [(? variable?) prog]
-        [(list 'if cond ift iff)
+        #;[(list 'if cond ift iff)
          `(if ,(inductor cond) ,(inductor ift) ,(inductor iff))]
         [(list op args ...)
          (cons (operator-info op mode) (map inductor args))]
         [_ (error (format "Invalid program ~a" prog))])))
-  (define fn (eval `(λ ,(program-variables prog) ,(compile body*)) common-eval-ns))
+  (define fn (common-eval `(λ ,(program-variables prog) ,(compile body*))))
   (lambda (pts)
     (precision->real (apply fn (map real->precision pts)))))
 
@@ -168,6 +153,25 @@
   (check-equal? (eval-const-expr '(+ 1 1)) 2)
   (check-equal? (eval-const-expr 'PI) pi)
   (check-equal? (eval-const-expr '(exp 2)) (exp 2)))
+
+(module+ test
+  (define tests
+    #hash([(λ (a b c) (/ (- (sqrt (- (* b b) (* a c))) b) a))
+           . (-1.918792216976527e-259 8.469572834134629e-97 -7.41524568576933e-282)
+           ])) ;(2.4174342574957107e-18 -1.4150052601637869e-40 -1.1686799408259549e+57)
+
+  (define (in-interval? iv pt)
+    (match-define (ival lo hi err? err) iv)
+    (and (bf<= lo pt) (bf<= pt hi)))
+
+  (define-binary-check (check-in-interval? in-interval? interval point))
+
+  (for ([(e p) (in-hash tests)])
+    (parameterize ([bf-precision 4000])
+      (define iv ((eval-prog e 'ival) p))
+      (define val ((eval-prog e 'bf) p))
+      (check bf<= (ival-lo iv) (ival-hi iv))
+      (check-in-interval? iv val))))
 
 ;; To compute the cost of a program, we could use the tree as a
 ;; whole, but this is inaccurate if the program has many common
@@ -264,7 +268,10 @@
              (and
               (if (symbol? atypes)
                   (andmap (curry equal? atypes) actual-types)
-                  (equal? atypes actual-types))
+                  (if (set-member? variary-operators op)
+                      (and (andmap (λ (x) (eq? (car actual-types) x)) actual-types)
+                           (eq? (car actual-types) (car atypes)))
+                      (equal? atypes actual-types)))
               (cons true-name rtype))))
          (values (cons op* args*) rtype)]
         [(list 'if cond ift iff)
@@ -278,9 +285,9 @@
         [(? real?)
          ;; cast to the correct type
          (match precision
-           ['posit8 (values (list 'real->posit8 (exact->inexact expr)) 'posit8)]
-           ['posit16 (values (list 'real->posit16 (exact->inexact expr)) 'posit16)]
-           ['posit32 (values (list 'real->posit32 (exact->inexact expr)) 'posit32)]
+           ['posit8 (values (list 'real->posit8 expr) 'posit8)]
+           ['posit16 (values (list 'real->posit16 expr) 'posit16)]
+           ['posit32 (values (list 'real->posit32 expr) 'posit32)]
            [_ (values expr 'real)])]
         [(? boolean?) (values expr 'bool)]
         [(? complex?) (values expr 'complex)]
@@ -307,9 +314,9 @@
          (define ift* (loop ift))
          (define iff* (loop iff))
          (list 'if cond* ift* iff*)]
-        [(list 'real->posit8 num) num]
-        [(list 'real->posit16 num) num]
-        [(list 'real->posit32 num) num]
+        [(list 'real->posit8 (? real?)) expr]
+        [(list 'real->posit16 (? real?)) expr]
+        [(list 'real->posit32 (? real?)) expr]
         [(list op args ...)
          (define args* (for/list ([arg args]) (loop arg)))
          (cons op args*)]
@@ -327,7 +334,7 @@
   (expand-parametric (expand-associativity (unfold-let prog)) ctx))
 
 (define (resugar-program prog)
-  (expand-parametric-reverse (expand-associativity (unfold-let prog))))
+  (expand-parametric-reverse prog))
 
 (define (replace-vars dict expr)
   (cond
@@ -344,3 +351,10 @@
    [#t
     expr]))
 
+(define (expr-supports? expr field)
+  (let loop ([expr expr])
+    (match expr
+      [(list op args ...)
+       (and (operator-info op field) (andmap loop args))]
+      [(? variable?) true]
+      [(? constant?) (or (not (symbol? expr)) (constant-info expr field))])))
