@@ -16,25 +16,28 @@
             (errors-score (test-success-start-error base-result))
             (errors-score (test-success-end-error base-result)))
     (printf "Base regime test timed out or failed\n"))
-  (define base-result-prog (alt-program (test-success-end-alt base-result)))
+  (when (test-success? base-result)
+    (define base-result-prog (alt-program (test-success-end-alt base-result)))
 
-  (define expanded-test (struct-copy test base-test
-                                     [precondition 'TRUE]
-                                     [output (caddr base-result-prog)]))
-  (define expanded-result (get-test-result expanded-test))
-  (if (test-success? expanded-result)
-    (let* ([start-err (errors-score (test-success-start-error expanded-result))]
-           [end-err (errors-score (test-success-end-error expanded-result))]
-           [target-err (errors-score (test-success-target-error expanded-result))]
-           [err-diff (- target-err end-err)])
-      (printf "Expanded regime error improvement: ~a → ~a\n"
-               start-err end-err)
-      (printf "Base output error: ~a\n" target-err)
-      (printf "Herbie improved this expanded regime by ~a bits\n" err-diff))
-    (printf "Expanded regime test timed out or failed\n")))
+    (define expanded-test (struct-copy test base-test
+                                       [precondition 'TRUE]
+                                       [output (caddr base-result-prog)]))
+    (define expanded-result (get-test-result expanded-test))
+    (if (test-success? expanded-result)
+      (let* ([start-err (errors-score (test-success-start-error expanded-result))]
+             [end-err (errors-score (test-success-end-error expanded-result))]
+             [target-err (errors-score (test-success-target-error expanded-result))]
+             [err-diff (- target-err end-err)])
+        (printf "Expanded regime error improvement: ~a → ~a\n"
+                 start-err end-err)
+        (printf "Base output error: ~a\n" target-err)
+        (printf "Herbie improved this expanded regime by ~a bits\n" err-diff))
+      (printf "Expanded regime test timed out or failed\n"))))
 
 (define (run-tests bench-dirs)
   (define tests (append-map load-tests bench-dirs))
+  (println (car tests))
+  (println "test")
   (define seed (get-seed))
 
   (printf "Running ~a tests (seed: ~a)\n" (length tests) seed)
