@@ -113,6 +113,8 @@
 
 (define (run-tests bench-dirs num-threads use-posits)
   (define tests (append-map load-tests bench-dirs))
+  (println tests)
+  (println "Here")
   (define num-tests (length tests))
   (define seed (get-seed))
 

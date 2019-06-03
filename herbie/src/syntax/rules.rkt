@@ -9,6 +9,8 @@
 
 (provide (struct-out rule) *rules* *simplify-rules* *fp-safe-simplify-rules*)
 
+(module+ test (require rackunit) (define num-test-points 2000))
+
 (struct rule (name input output itypes) ; Input and output are patterns
         #:methods gen:custom-write
         [(define (write-proc rule port mode)
@@ -51,7 +53,7 @@
   [+-commutative     (+ a b)               (+ b a)]
   [*-commutative     (* a b)               (* b a)])
 
-(define-ruleset commutativity.p16 (arithmetic simplify posit16)
+(define-ruleset commutativity.p16 (arithmetic simplify posit)
   #:type ([a posit16] [b posit16])
   [+-commutative     (+.p16 a b)               (+.p16 b a)]
   [*-commutative     (*.p16 a b)               (*.p16 b a)])
@@ -208,14 +210,14 @@
 
 (define-ruleset distributivity.c (arithmetic simplify complex)
   #:type ([a complex] [b complex] [c complex])
-  [distribute-lft-in      (*.c a (+.c b c))           (+.c (*.c a b) (*.c a c))]
-  [distribute-rgt-in      (*.c a (+.c b c))           (+.c (*.c b a) (*.c c a))]
-  [distribute-lft-out     (+.c (*.c a b) (*.c a c))   (*.c a (+.c b c))]
-  [distribute-lft-out--   (-.c (*.c a b) (*.c a c))   (*.c a (-.c b c))]
-  [distribute-rgt-out     (+.c (*.c b a) (*.c c a))   (*.c a (+.c b c))]
-  [distribute-rgt-out--   (-.c (*.c b a) (*.c c a))   (*.c a (-.c b c))]
-  [distribute-lft1-in     (+.c (*.c b a) a)           (*.c (+.c b (complex 1 0)) a)]
-  [distribute-rgt1-in     (+.c a (*.c c a))           (*.c (+.c c (complex 1 0)) a)])
+  [distribute-lft-in.c      (*.c a (+.c b c))           (+.c (*.c a b) (*.c a c))]
+  [distribute-rgt-in.c      (*.c a (+.c b c))           (+.c (*.c b a) (*.c c a))]
+  [distribute-lft-out.c     (+.c (*.c a b) (*.c a c))   (*.c a (+.c b c))]
+  [distribute-lft-out--.c   (-.c (*.c a b) (*.c a c))   (*.c a (-.c b c))]
+  [distribute-rgt-out.c     (+.c (*.c b a) (*.c c a))   (*.c a (+.c b c))]
+  [distribute-rgt-out--.c   (-.c (*.c b a) (*.c c a))   (*.c a (-.c b c))]
+  [distribute-lft1-in.c     (+.c (*.c b a) a)           (*.c (+.c b (complex 1 0)) a)]
+  [distribute-rgt1-in.c     (+.c a (*.c c a))           (*.c (+.c c (complex 1 0)) a)])
 
 ; Safe Distributiviity
 (define-ruleset distributivity-fp-safe (arithmetic simplify fp-safe)
@@ -271,17 +273,17 @@
 
 (define-ruleset exact-posit16 (arithmetic simplify posit fp-safe-nan)
   #:type ([a posit16])
-  [+-inverses        (-.p16 a a)                                 (real->posit16 0.0)]
-  [*-inverses        (/.p16 a a)                                 (real->posit16 1.0)]
-  [div0              (/.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
-  [mul0              (*.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
-  [mul0              (*.p16 a (real->posit16 0.0))               (real->posit16 0.0)])
+  [+-inverses.p16    (-.p16 a a)                                 (real->posit16 0.0)]
+  [*-inverses.p16    (/.p16 a a)                                 (real->posit16 1.0)]
+  [div0.p16          (/.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
+  [mul0.p16          (*.p16 (real->posit16 0.0) a)               (real->posit16 0.0)]
+  [mul0.p16          (*.p16 a (real->posit16 0.0))               (real->posit16 0.0)])
 
 (define-ruleset id-reduce-posit16 (arithmetic simplify posit)
   #:type ([a posit16])
-  [remove-double-div (/.p16 (real->posit16 1.0) (/.p16 (real->posit16 1.0) a))         a]
-  [rgt-mult-inverse  (*.p16 a (/.p16 (real->posit16 1.0) a))         (real->posit16 1.0)]
-  [lft-mult-inverse  (*.p16 (/.p16 (real->posit16 1.0) a) a)         (real->posit16 1.0)])
+  [remove-double-div.p16 (/.p16 (real->posit16 1.0) (/.p16 (real->posit16 1.0) a))         a]
+  [rgt-mult-inverse.p16  (*.p16 a (/.p16 (real->posit16 1.0) a))         (real->posit16 1.0)]
+  [lft-mult-inverse.p16  (*.p16 (/.p16 (real->posit16 1.0) a) a)         (real->posit16 1.0)])
 
 (define-ruleset id-reduce-fp-safe (arithmetic simplify fp-safe)
   #:type ([a real])
@@ -329,8 +331,8 @@
 
 (define-ruleset fractions-distribute.c (fractions simplify complex)
   #:type ([a complex] [b complex] [c complex] [d complex])
-  [div-sub     (/.c (-.c a b) c)          (-.c (/.c a c) (/.c b c))]
-  [times-frac  (/.c (*.c a b) (*.c c d))  (*.c (/.c a c) (/.c b d))])
+  [div-sub.c     (/.c (-.c a b) c)          (-.c (/.c a c) (/.c b c))]
+  [times-frac.c  (/.c (*.c a b) (*.c c d))  (*.c (/.c a c) (/.c b d))])
 
 (define-ruleset fractions-transform (fractions)
   #:type ([a real] [b real] [c real] [d real])
@@ -346,7 +348,7 @@
   [frac-add.c    (+.c (/.c a b) (/.c c d))  (/.c (+.c (*.c a d) (*.c b c)) (*.c b d))]
   [frac-sub.c    (-.c (/.c a b) (/.c c d))  (/.c (-.c (*.c a d) (*.c b c)) (*.c b d))]
   [frac-times.c  (*.c (/.c a b) (/.c c d))  (/.c (*.c a c) (*.c b d))]
-  [frac-2neg-c   (/.c a b)                  (/.c (neg.c a) (neg.c b))])
+  [frac-2neg.c   (/.c a b)                  (/.c (neg.c a) (neg.c b))])
 
 ; Square root
 (define-ruleset squares-reduce (arithmetic simplify)
@@ -405,11 +407,9 @@
   [rem-exp-log  (exp (log x))        x]
   [rem-log-exp  (log (exp x))        x])
 
-(define-ruleset exp-reduce-fp-safe (exponents simplify fp-safe)
+(define-ruleset exp-constants (exponents simplify fp-safe)
   [exp-0        (exp 0)              1]
-  [exp-1-e      (exp 1)              E])
-
-(define-ruleset exp-expand-fp-safe (exponents fp-safe)
+  [exp-1-e      (exp 1)              E]
   [1-exp        1                    (exp 0)]
   [e-exp-1      E                    (exp 1)])
 
@@ -803,94 +803,86 @@
         '())))
 
 (module+ test
-  (require rackunit math/bigfloat)
-  (require "../programs.rkt")
-  (define num-test-points 2000)
+  (require "../programs.rkt" (submod "../points.rkt" internals) math/bigfloat)
 
+  ;; WARNING: These aren't treated as preconditions, they are only used for range inference
   (define *conditions*
-    '([acosh-def  . (>= x 1)]
+    `([acosh-def  . (>= x 1)]
       [atanh-def  . (< (fabs x) 1)]
+      [asin-acos  . (<= -1 x 1)]
+      [acos-asin  . (<= -1 x 1)]
       [acosh-2    . (>= x 1)]
       [asinh-2    . (>= x 0)]
       [sinh-acosh . (> (fabs x) 1)]
       [sinh-atanh . (< (fabs x) 1)]
       [cosh-atanh . (< (fabs x) 1)]
       [tanh-acosh . (> (fabs x) 1)]
-      [asin-sin   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
-      [acos-cos   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
-      [atan-tan   . (<= 1e-10 (fabs x) 1e10)] ; Avoid minor rounding error
-      [asin-sin-s . (<= (fabs x) (/ PI 2))]
-      [acos-cos-s . (<= 1e-10 x PI)] ; Lower bound avoids false positive
-      [atan-tan-s . (<= (fabs x) (/ PI 2))]))
+      ;; These next three unquote the pi computation so that range analysis will work
+      [asin-sin-s . (<= (fabs x) ,(/ pi 2))]
+      [acos-cos-s . (<= 0 x ,pi)]
+      [atan-tan-s . (<= (fabs x) ,(/ pi 2))]))
 
-  (define *skip-tests*
-    (append
-      ;; All these tests fail due to underflow to 0 and are irrelevant
-      ;; Posit tests may have unnaceptable error due to lack of
-      ;; representable numbers
-      '(exp-prod pow-unpow pow-pow pow-exp
-        asinh-2 tanh-1/2* sinh-cosh
-        hang-p0-tan hang-m0-tan erf-odd erf-erfc erfc-erf
-        p16-flip-- sqrt-sqrd.p16)))
+  (for* ([test-ruleset (*rulesets*)] [test-rule (first test-ruleset)]
+         ;; The posit rules currently fail, possibly due to halfpoints sampling
+         #:unless (set-member? (second test-ruleset) 'posit))
+    (match-define (rule name p1 p2 itypes) test-rule)
+    (test-case (~a name)
+      (define fv (dict-keys itypes))
 
-  (for* ([test-ruleset (*rulesets*)]
-         [test-rule (first test-ruleset)]
-         #:unless (set-member? *skip-tests* (rule-name test-rule)))
-    (parameterize ([bf-precision 2000])
-      (test-case (~a (rule-name test-rule))
-        (match-define (rule name p1 p2 _) test-rule)
-        ;; Not using the normal prepare-points machinery for speed.
-        (define fv (free-variables p1))
-        (define valid-point?
-          (if (dict-has-key? *conditions* name)
-              (eval-prog `(λ ,fv ,(dict-ref *conditions* name)) 'bf)
-              (const true)))
+      (define make-point
+        (let ([sample (make-sampler `(λ ,fv ,(dict-ref *conditions* name 'TRUE)))])
+          (λ ()
+            (if (dict-has-key? *conditions* name)
+                (sample)
+                (for/list ([v fv] [i (in-naturals)])
+                  (match (dict-ref (rule-itypes test-rule) v)
+                    ['real (sample-double)]
+                    ['bool (if (< (random) .5) false true)]
+                    ['complex (make-rectangular (sample-double) (sample-double))]
+                    ['posit8 (random-posit8)]
+                    ['posit16 (random-posit16)]
+                    ['posit32 (random-posit32)]
+                    ['quire8 (random-quire8)]
+                    ['quire16 (random-quire16)]
+                    ['quire32 (random-quire32)]))))))
 
-        (define (make-point)
-          (for/list ([v fv])
-            (match (dict-ref (rule-itypes test-rule) v)
-              ['real (sample-double)]
-              ['bool (if (< (random) .5) false true)]
-              ['complex (make-rectangular (sample-double) (sample-double))]
-              ['posit8 (random-posit8)]
-              ['posit16 (random-posit16)]
-              ['posit32 (random-posit32)]
-              ['quire8 (random-quire8)]
-              ['quire16 (random-quire16)]
-              ['quire32 (random-quire32)])))
-        (define point-sequence (sequence-filter valid-point? (in-producer make-point)))
-        (define points (for/list ([n (in-range num-test-points)] [pt point-sequence]) pt))
-        (define prog1 (compose ->flonum (eval-prog `(λ ,fv ,p1) 'bf)))
-        (define prog2 (compose ->flonum (eval-prog `(λ ,fv ,p2) 'bf)))
-        (with-handlers ([exn:fail:contract? (λ (e) (eprintf "~a: ~a\n" name (exn-message e)))])
-          (define ex1 (map prog1 points))
-          (define ex2 (map prog2 points))
-          (define errs
-            (for/list ([v1 ex1] [v2 ex2])
-              ;; Ignore points not in the input or output domain
-              (if (and (ordinary-value? v1) (ordinary-value? v2))
-                  (ulps->bits (+ (abs (ulp-difference v1 v2)) 1))
-                  #f)))
-          (when (< (length (filter identity errs)) 100)
-            (eprintf "Could not sample enough points to test ~a\n" name))
-          (define score (/ (apply + (filter identity errs)) (length (filter identity errs))))
-          (define max-error
-            (argmax car (filter car (map list errs points ex1 ex2 errs))))
-          (with-check-info (['max-error (first max-error)]
-                            ['max-point (map cons fv (second max-error))]
-                            ['max-input (third max-error)]
-                            ['max-output (fourth max-error)])
-                           (check-pred (curryr <= 1) score)))))))
+      (define-values (method prog1 prog2 points)
+        (cond
+         [(and (expr-supports? p1 'ival) (expr-supports? p2 'ival))
+          (define prog1 (curry ival-eval (eval-prog `(λ ,fv ,p1) 'ival)))
+          (define prog2 (curry ival-eval (eval-prog `(λ ,fv ,p2) 'ival)))
+          (define points (for/list ([n (in-range num-test-points)]) (make-point)))
+          (values 'ival prog1 prog2 points)]
+         [else
+          (unless (or (set-member? (second test-ruleset) 'complex)
+                      (set-member? (second test-ruleset) 'posit))
+            (fail-check "Real or boolean rule not supported by intervals"))
+          (when (dict-has-key? *conditions* name)
+            (fail-check "Using bigfloat sampling on a rule with a condition"))
+          (define ((with-hiprec f) x) (parameterize ([bf-precision 2000]) (f x)))
+          (define prog1 (with-hiprec (compose ->flonum (eval-prog `(λ ,fv ,p1) 'bf))))
+          (define prog2 (with-hiprec (compose ->flonum (eval-prog `(λ ,fv ,p2) 'bf))))
+          (define points (for/list ([n (in-range num-test-points)]) (make-point)))
+          (values 'bf prog1 prog2 points)]))
+
+      (define ex1 (map prog1 points))
+      (define ex2 (map prog2 points))
+      (define errs
+        (for/list ([pt points] [v1 ex1] [v2 ex2]
+                   #:when (and (ordinary-value? v1) (ordinary-value? v2)))
+          (with-check-info (['point (map cons fv pt)] ['method method]
+                            ['input v1] ['output v2])
+            (check-eq? (ulp-difference v1 v2) 0))))
+      (when (< (length errs) 100)
+        (fail-check "Not enough points sampled to test rule")))))
 
 (module+ test
-  (require rackunit math/bigfloat)
-  (require "../programs.rkt" "../float.rkt")
+  (require math/bigfloat "../programs.rkt" "../float.rkt")
 
   (for* ([test-ruleset (*rulesets*)]
          [test-rule (first test-ruleset)]
          #:when (set-member? (*fp-safe-simplify-rules*) test-rule))
     (test-case (~a (rule-name test-rule))
-      (define num-test-points 2000)
       (match-define (rule name p1 p2 _) test-rule)
       (define fv (free-variables p1))
       (define (make-point)
@@ -903,14 +895,8 @@
       (define points (for/list ([n (in-range num-test-points)] [pt point-sequence]) pt))
       (define prog1 (eval-prog `(λ ,fv ,p1) 'fl))
       (define prog2 (eval-prog `(λ ,fv, p2) 'fl))
-      (with-handlers ([exn:fail:contract? (λ (e) (eprintf "~a: ~a\n" name (exn-message e)))])
-        (define ex1 (map prog1 points))
-        (define ex2 (map prog2 points))
-        (define err
-          (for/first ([pt points] [v1 ex1] [v2 ex2]
-                      #:unless (equal? v1 v2))
-            (list pt v1 v2)))
-        (when err
-          (match-define (list pt v1 v2) err)
-          (with-check-info (['point (map list fv pt)] ['input-value v1] ['output-value v2])
-                           (check-false err)))))))
+      (define ex1 (map prog1 points))
+      (define ex2 (map prog2 points))
+      (for ([pt points] [v1 ex1] [v2 ex2])
+        (with-check-info (['point (map list fv pt)])
+          (check-equal? v1 v2))))))

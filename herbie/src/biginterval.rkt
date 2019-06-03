@@ -9,7 +9,7 @@
 
 (provide (contract-out
           [struct ival ([lo bigvalue?] [hi bigvalue?] [err? boolean?] [err boolean?])]
-          [mk-ival (-> real? ival?)]
+          [mk-ival (-> (or/c real? boolean?) ival?)]
           [ival-pi (-> ival?)]
           [ival-e  (-> ival?)]
           [ival-bool (-> boolean? ival?)]
@@ -38,7 +38,13 @@
           [ival-sinh (-> ival? ival?)]
           [ival-cosh (-> ival? ival?)]
           [ival-tanh (-> ival? ival?)]
+          [ival-asinh (-> ival? ival?)]
+          [ival-acosh (-> ival? ival?)]
+          [ival-atanh (-> ival? ival?)]
+          [ival-erf (-> ival? ival?)]
+          [ival-erfc (-> ival? ival?)]
           [ival-fmod (-> ival? ival? ival?)]
+          [ival-remainder (-> ival? ival? ival?)]
           [ival-and (->* () #:rest (listof ival?) ival?)]
           [ival-or  (->* () #:rest (listof ival?) ival?)]
           [ival-not (-> ival? ival?)]
@@ -51,9 +57,13 @@
           [ival-if (-> ival? ival? ival? ival?)]))
 
 (define (mk-ival x)
-  (define err? (or (nan? x) (infinite? x)))
-  (define x* (bf x)) ;; TODO: Assuming that float precision < bigfloat precision
-  (ival x* x* err? err?))
+  (match x
+    [(? real?)
+     (define err? (or (nan? x) (infinite? x)))
+     (define x* (bf x)) ;; TODO: Assuming that float precision < bigfloat precision
+     (ival x* x* err? err?)]
+    [(? boolean?)
+     (ival x x #f #f)]))
 
 (define (ival-pi)
   (ival (rnd 'down identity pi.bf) (rnd 'up identity pi.bf) #f #f))
@@ -310,15 +320,15 @@
   (define br (list (ival-lo y) (ival-hi x)))
 
   (define-values (a-lo a-hi)
-    (match (cons (classify-ival x) (classify-ival y))
-      ['(-1 -1) (values tl br)]
-      ['( 0 -1) (values tl tr)]
-      ['( 1 -1) (values bl tr)]
-      ['( 1  0) (values bl tl)]
-      ['( 1  1) (values br tl)]
-      ['( 0  1) (values br bl)]
-      ['(-1  1) (values tr bl)]
-      [_        (values #f #f)]))
+    (match* ((classify-ival x) (classify-ival y))
+      [(-1 -1) (values tl br)]
+      [( 0 -1) (values tl tr)]
+      [( 1 -1) (values bl tr)]
+      [( 1  0) (values bl tl)]
+      [( 1  1) (values br tl)]
+      [( 0  1) (values br bl)]
+      [(-1  1) (values tr bl)]
+      [( _  _) (values #f #f)]))
 
   (if a-lo
       (ival (rnd 'down apply bfatan2 a-lo) (rnd 'up apply bfatan2 a-hi) err? err)
@@ -354,6 +364,16 @@
 (define (ival-tanh x)
   (ival (rnd 'down bftanh (ival-lo x)) (rnd 'up bftanh (ival-hi x)) (ival-err? x) (ival-err x)))
 
+(define (ival-asinh x)
+  (ival (rnd 'down bfasinh (ival-lo x)) (rnd 'up bfasinh (ival-hi x)) (ival-err? x) (ival-err x)))
+
+(define (ival-acosh x)
+  (ival (rnd 'down bfacosh (bfmax (ival-lo x) 1.bf)) (rnd 'up bfacosh (ival-hi x))
+        (or (bf<= (ival-lo x) 1.bf) (ival-err? x)) (or (bf< (ival-hi x) 1.bf) (ival-err x))))
+
+(define (ival-atanh x)
+  (ival (rnd 'down bfatanh (ival-lo x)) (rnd 'up bfatanh (ival-hi x)) (ival-err? x) (ival-err x)))
+
 (define (ival-fmod x y)
   (define y* (ival-fabs y))
   (define quot (ival-div x y*))
@@ -368,6 +388,24 @@
    [(bf<= b 0.bf) (ival (bf- (ival-hi y*)) 0.bf err? err)]
    [(bf>= a 0.bf) (ival 0.bf (ival-hi y*) err? err)]
    [else (ival (bf- (ival-hi y*)) (ival-hi y*) err? err)]))
+
+(define (ival-remainder x y)
+  (define y* (ival-fabs y))
+  (define quot (ival-div x y*))
+  (define a (rnd 'down bfround (ival-lo quot)))
+  (define b (rnd 'up bfround (ival-hi quot)))
+  (define err? (or (ival-err? x) (ival-err? y) (bf= (ival-lo y*) 0.bf)))
+  (define err (or (ival-err x) (ival-err y) (bf= (ival-hi y*) 0.bf)))
+
+  (if (bf= a b)
+      (ival-sub x (ival-mult (ival a b err? err) y*))
+      (ival (bf- (bf/ (ival-hi y*) 2.bf)) (bf/ (ival-hi y*) 2.bf) err? err)))
+
+(define (ival-erf x)
+  (ival (rnd 'down bferf (ival-lo x)) (rnd 'up bferf (ival-hi x)) (ival-err? x) (ival-err x)))
+
+(define (ival-erfc x)
+  (ival (rnd 'down bferfc (ival-hi x)) (rnd 'up bferfc (ival-lo x)) (ival-err? x) (ival-err x)))
 
 (define (ival-cmp x y)
   (define can-< (bf< (ival-lo x) (ival-hi y)))
@@ -524,9 +562,6 @@
            (check-pred ival-valid? (ival-fn i))
            (check ival-contains? (ival-fn i) (fn x))))))
 
-  (define (bffmod x y)
-    (bf- x (bf* (bftruncate (bf/ x y)) y)))
-
   (define arg2
     (list (cons ival-add bf+)
           (cons ival-sub bf-)
@@ -554,20 +589,29 @@
            (check-pred ival-valid? iy)
            (check ival-contains? iy (fn x1 x2))))))
 
-  (test-case "ival-fmod"
-    (for ([n (in-range num-tests)])
-      (define i1 (sample-interval))
-      (define i2 (sample-interval))
-      (define x1 (sample-from i1))
-      (define x2 (sample-from i2))
+  (define (bffmod x y)
+    (bf- x (bf* (bftruncate (bf/ x y)) y)))
 
-      (define y (parameterize ([bf-precision 8000]) (bffmod x1 x2)))
+  (define (bfremainder x mod)
+    (bf- x (bf* (bfround (bf/ x mod)) mod)))
 
-      ;; Known bug in bffmod where rounding error causes invalid output
-      (unless (or (bf<= (bf* y x1) 0.bf) (bf> (bfabs y) (bfabs x2)))
-        (with-check-info (['fn ival-fmod] ['interval1 i1] ['interval2 i2]
-                          ['point1 x1] ['point2 x2] ['number n])
-          (define iy (ival-fmod i1 i2))
-          (check-pred ival-valid? iy)
-          (check ival-contains? iy y)))))
+  (define weird (list (cons ival-fmod bffmod) (cons ival-remainder bfremainder)))
+
+  (for ([(ival-fn fn) (in-dict weird)])
+    (test-case (~a (object-name ival-fn))
+      (for ([n (in-range num-tests)])
+        (define i1 (sample-interval))
+        (define i2 (sample-interval))
+        (define x1 (sample-from i1))
+        (define x2 (sample-from i2))
+
+        (define y (parameterize ([bf-precision 8000]) (fn x1 x2)))
+
+        ;; Known bug in bffmod where rounding error causes invalid output
+        (unless (or (bf<= (bf* y x1) 0.bf) (bf> (bfabs y) (bfabs x2)))
+          (with-check-info (['fn ival-fn] ['interval1 i1] ['interval2 i2]
+                            ['point1 x1] ['point2 x2] ['number n])
+            (define iy (ival-fn i1 i2))
+            (check-pred ival-valid? iy)
+            (check ival-contains? iy y))))))
   )
