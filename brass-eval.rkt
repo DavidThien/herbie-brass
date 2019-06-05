@@ -150,7 +150,7 @@
   'done)
 
 (module+ main
-  (define seed (random 1 (expt 2 31)))
+  (define seed 941915223 #;(random 1 (expt 2 31)))
   (define num-threads 1)
   (define use-posits #t)
   (set-seed! seed)
