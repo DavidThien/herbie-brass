@@ -10,6 +10,7 @@ compile/nr*.out
 compile/nr.json
 compile/cost
 compiled/
+logs/*
 ml-toy
 papers
 www/demo
